@@ -13,6 +13,8 @@ public:
     bool setFullscreen(bool fullscreen);
     bool setWindowedScale(int pixelScale);
 
+    char *getVgaScreen() const;
+
 private:
     glm::dvec3 points[100];
 

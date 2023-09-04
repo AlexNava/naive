@@ -73,3 +73,8 @@ bool Renderer::setWindowedScale(int pixelScale)
     }
     return false;
 }
+
+char *Renderer::getVgaScreen() const
+{
+    return vgaScreen;
+}
