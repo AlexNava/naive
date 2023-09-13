@@ -10,8 +10,13 @@ set(NAIVE_SOURCES
     main.cpp
     
     renderer.cpp
-    
+    texture.cpp
+    palette.cpp
+
+    naive_defs.hpp
     renderer.hpp
+    texture.hpp
+    palette.hpp
 )
 
 add_executable(Naive ${NAIVE_SOURCES})

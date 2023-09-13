@@ -28,11 +28,11 @@ private:
     char rr[256], gg[256], bb[256];
     char rd, gr, bl;
 
-    SDL_Window *win = 0;
-    SDL_Renderer *sdlRenderer = 0;
-    SDL_Texture *sdlTexture = 0;
-    SDL_Surface *rgbSurface = 0;
-    SDL_Surface *vgaSurface = 0;
+    SDL_Window   *m_pWin         = nullptr;
+    SDL_Renderer *m_pSdlRenderer = nullptr;
+    SDL_Texture  *m_pSdlTexture  = nullptr;
+    SDL_Surface  *m_pRgbSurface  = nullptr;
+    SDL_Surface  *m_pVgaSurface  = nullptr;
 
     SDL_Color sdlPalette[256];
 };
