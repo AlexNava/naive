@@ -4,22 +4,22 @@ Renderer::Renderer()
 {
     m_screenWidth  = 320; // a true classic
     m_screenHeight = 200;
-    m_windowScale   = 2;
+    m_windowScale  = 2;
     m_fullscreen   = false;
 
-    win = SDL_CreateWindow("naive", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
-    sdlRenderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_PRESENTVSYNC);
+    m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
+    m_pSdlRenderer = SDL_CreateRenderer(m_pWin, -1, SDL_RENDERER_PRESENTVSYNC);
 
     //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
-    SDL_RenderSetLogicalSize(sdlRenderer, m_screenWidth, m_screenHeight);
+    SDL_RenderSetLogicalSize(m_pSdlRenderer, m_screenWidth, m_screenHeight);
 
-    sdlTexture = SDL_CreateTexture(
-        sdlRenderer,
+    m_pSdlTexture = SDL_CreateTexture(
+        m_pSdlRenderer,
         SDL_PIXELFORMAT_ARGB8888,
         SDL_TEXTUREACCESS_STREAMING,
         m_screenWidth, m_screenHeight);
-    rgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-    vgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+    m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
+    m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
 }
 
 bool Renderer::setInternalResolution(int width, int height)
@@ -32,24 +32,24 @@ bool Renderer::setInternalResolution(int width, int height)
         m_screenWidth = width;
         m_screenHeight = height;
 
-        ret = SDL_RenderSetLogicalSize(sdlRenderer, m_screenWidth, m_screenHeight);
+        ret = SDL_RenderSetLogicalSize(m_pSdlRenderer, m_screenWidth, m_screenHeight);
         result &= (ret == 0);
 
-        SDL_DestroyTexture(sdlTexture);
-        SDL_FreeSurface(rgbSurface);
-        SDL_FreeSurface(vgaSurface);
+        SDL_DestroyTexture(m_pSdlTexture);
+        SDL_FreeSurface(m_pRgbSurface);
+        SDL_FreeSurface(m_pVgaSurface);
 
-        sdlTexture = SDL_CreateTexture(
-            sdlRenderer,
+        m_pSdlTexture = SDL_CreateTexture(
+            m_pSdlRenderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_STREAMING,
             m_screenWidth, m_screenHeight);
-        rgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-        vgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+        m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
+        m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
 
-        result &= (sdlTexture != nullptr);
-        result &= (rgbSurface != nullptr);
-        result &= (vgaSurface != nullptr);
+        result &= (m_pSdlTexture != nullptr);
+        result &= (m_pRgbSurface != nullptr);
+        result &= (m_pVgaSurface != nullptr);
 
         result &= setWindowedScale(m_windowScale);
         return result;
@@ -60,7 +60,7 @@ bool Renderer::setInternalResolution(int width, int height)
 
 bool Renderer::setFullscreen(bool fullscreen)
 {
-    return (SDL_SetWindowFullscreen(win, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)) == 0);
+    return (SDL_SetWindowFullscreen(m_pWin, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)) == 0);
 }
 
 bool Renderer::setWindowedScale(int pixelScale)
@@ -68,7 +68,7 @@ bool Renderer::setWindowedScale(int pixelScale)
     if (pixelScale > 0)
     {
         m_windowScale = pixelScale;
-        SDL_SetWindowSize(win, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale);
+        SDL_SetWindowSize(m_pWin, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale);
         return true;
     }
     return false;
