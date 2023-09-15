@@ -9,12 +9,12 @@ include_directories("./glm")
 set(NAIVE_SOURCES
     main.cpp
     
-    renderer.cpp
+    video.cpp
     texture.cpp
     palette.cpp
 
     naive_defs.hpp
-    renderer.hpp
+    video.hpp
     texture.hpp
     palette.hpp
 )

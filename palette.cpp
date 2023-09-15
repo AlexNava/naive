@@ -1,9 +1,9 @@
 #include "palette.hpp"
-#include "renderer.hpp"
+#include "video.hpp"
 
-Palette::Palette(Renderer *pRenderer)
+Palette::Palette(Video *pVideo)
 {
-    m_pRenderer = pRenderer;
+    m_pVideo = pVideo;
 }
 
 void Palette::setColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
@@ -15,22 +15,65 @@ void Palette::setColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
 
 void Palette::computeLookupTables()
 {
-    for (uint8_t color1 = 0; color1 < constants::PALETTE_ENTRIES; ++color1)
-        for (uint8_t light = 0; light < constants::LIGHT_LEVELS; ++light)
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t light = 0; light < constants::LIGHT_LEVELS; ++light)
         {
-            SDL_Color targetColor = color1;
-            targetColor.r *= light; targetColor.r /= (constants::LIGHT_LEVELS - 1);
-            targetColor.g *= light; targetColor.g /= (constants::LIGHT_LEVELS - 1);
-            targetColor.b *= light; targetColor.b /= (constants::LIGHT_LEVELS - 1);
+            uint16_t r = m_palette[fgCol].r * light; r /= (constants::LIGHT_LEVELS - 1);
+            uint16_t g = m_palette[fgCol].g * light; g /= (constants::LIGHT_LEVELS - 1);
+            uint16_t b = m_palette[fgCol].b * light; b /= (constants::LIGHT_LEVELS - 1);
 
-            m_lightTable[color1][light] = computeNearestColor(targetColor);
+            SDL_Color targetColor;
+            targetColor.r = (r <= 255 ? r : 255);
+            targetColor.g = (g <= 255 ? g : 255);
+            targetColor.b = (b <= 255 ? b : 255);
+            m_lightTable[fgCol][light] = computeNearestColor(targetColor);
         }
 
-    for (uint8_t color1 = 0; color1 < constants::PALETTE_ENTRIES; ++color1)
-        for (uint8_t color2 = 0; color2 < constants::PALETTE_ENTRIES; ++color2)
-        {
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t bgCol = 0; bgCol < constants::PALETTE_ENTRIES; ++bgCol)
+            for (uint16_t alpha = 0; alpha < constants::ALPHA_LEVELS; ++alpha)
+            {
+                if (alpha == 0)
+                    m_blendTable[fgCol][bgCol][alpha] = bgCol;
+                else if (alpha == constants::ALPHA_LEVELS - 1)
+                    m_blendTable[fgCol][bgCol][alpha] = fgCol;
+                else
+                {
+                    uint16_t r = m_palette[fgCol].r * alpha;
+                    r += m_palette[bgCol].r * (constants::ALPHA_LEVELS - 1 - alpha);
+                    r /= (constants::ALPHA_LEVELS - 1);
+                    uint16_t g = m_palette[fgCol].g * alpha;
+                    g += m_palette[bgCol].g * (constants::ALPHA_LEVELS - 1 - alpha);
+                    g /= (constants::ALPHA_LEVELS - 1);
+                    uint16_t b = m_palette[fgCol].b * alpha;
+                    b += m_palette[bgCol].b * (constants::ALPHA_LEVELS - 1 - alpha);
+                    b /= (constants::ALPHA_LEVELS - 1);
 
+                    SDL_Color targetColor;
+                    targetColor.r = (r <= 255 ? r : 255);
+                    targetColor.g = (g <= 255 ? g : 255);
+                    targetColor.b = (b <= 255 ? b : 255);
+                    m_blendTable[fgCol][bgCol][alpha] = computeNearestColor(targetColor);
+                }
+            }
+
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t bgCol = 0; bgCol < constants::PALETTE_ENTRIES; ++bgCol)
+        {
+            uint16_t r = m_palette[fgCol].r;
+            r += m_palette[bgCol].r;
+            uint16_t g = m_palette[fgCol].g;
+            g += m_palette[bgCol].g;
+            uint16_t b = m_palette[fgCol].b;
+            b += m_palette[bgCol].b;
+
+            SDL_Color targetColor;
+            targetColor.r = (r <= 255 ? r : 255);
+            targetColor.g = (g <= 255 ? g : 255);
+            targetColor.b = (b <= 255 ? b : 255);
+            m_addBlendTable[fgCol][bgCol] = computeNearestColor(targetColor);
         }
+
 }
 
 double Palette::computeDistance(SDL_Color color1, SDL_Color color2) const
@@ -45,7 +88,7 @@ uint8_t Palette::computeNearestColor(SDL_Color target)
 {
     uint8_t minIndex = 0;
     double minDistance = computeDistance(target, m_palette[0]);
-    for (uint8_t index = 1; index < constants::PALETTE_ENTRIES; ++index)
+    for (uint16_t index = 1; index < constants::PALETTE_ENTRIES; ++index)
     {
         double currentDistance = computeDistance(target, m_palette[index]);
         if (currentDistance < minDistance)

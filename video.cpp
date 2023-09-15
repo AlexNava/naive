@@ -1,6 +1,6 @@
-#include "renderer.hpp"
+#include "video.hpp"
 
-Renderer::Renderer()
+Video::Video()
 {
     m_screenWidth  = 320; // a true classic
     m_screenHeight = 200;
@@ -22,7 +22,7 @@ Renderer::Renderer()
     m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
 }
 
-bool Renderer::setInternalResolution(int width, int height)
+bool Video::setInternalResolution(int width, int height)
 {
     if (width > 0 && height > 0)
     {
@@ -58,12 +58,12 @@ bool Renderer::setInternalResolution(int width, int height)
     return false;
 }
 
-bool Renderer::setFullscreen(bool fullscreen)
+bool Video::setFullscreen(bool fullscreen)
 {
     return (SDL_SetWindowFullscreen(m_pWin, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)) == 0);
 }
 
-bool Renderer::setWindowedScale(int pixelScale)
+bool Video::setWindowedScale(int pixelScale)
 {
     if (pixelScale > 0)
     {
@@ -74,7 +74,7 @@ bool Renderer::setWindowedScale(int pixelScale)
     return false;
 }
 
-char *Renderer::getVgaScreen() const
+char *Video::getVgaScreen() const
 {
     return vgaScreen;
 }

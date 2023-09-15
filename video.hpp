@@ -1,14 +1,14 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#ifndef VIDEO_HPP
+#define VIDEO_HPP
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 #include "SDL2/SDL.h"
 
-class Renderer
+class Video
 {
 public:
-    Renderer();
+    Video();
     bool setInternalResolution(int width, int height);
     bool setFullscreen(bool fullscreen);
     bool setWindowedScale(int pixelScale);
@@ -39,4 +39,4 @@ private:
     SDL_Color sdlPalette[256];
 };
 
-#endif // RENDERER_HPP
+#endif // VIDEO_HPP
