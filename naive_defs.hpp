@@ -10,4 +10,9 @@ namespace constants
     const uint16_t LIGHT_LEVELS = 256;
 }
 
+namespace functions
+{
+    bool isPowOf2(uint64_t);
+}
+
 #endif // NAIVE_DEFS_HPP
