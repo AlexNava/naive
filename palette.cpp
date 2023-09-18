@@ -6,11 +6,17 @@ Palette::Palette(Video *pVideo)
     m_pVideo = pVideo;
 }
 
-void Palette::setColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
+void Palette::setColor(col_t index, uint8_t r, uint8_t g, uint8_t b)
 {
     m_palette[index].r = r;
     m_palette[index].g = g;
     m_palette[index].b = b;
+}
+
+SDL_Color Palette::getColor(col_t index)
+{
+    if (index < constants::PALETTE_ENTRIES)
+        return m_palette[index];
 }
 
 void Palette::computeLookupTables()
@@ -76,6 +82,22 @@ void Palette::computeLookupTables()
 
 }
 
+col_t Palette::getLightedColor(col_t color, col_t light)
+{
+    if (light <= constants::LIGHT_LEVELS)
+        return m_lightTable[color][light];
+    else
+        return m_lightTable[color][constants::LIGHT_LEVELS - 1];
+}
+
+col_t Palette::getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha)
+{
+    if (alpha < constants::ALPHA_LEVELS)
+        return m_blendTable[fgColor][bgColor][alpha];
+    else
+        return m_blendTable[fgColor][bgColor][constants::ALPHA_LEVELS - 1];
+}
+
 double Palette::computeDistance(SDL_Color color1, SDL_Color color2) const
 {
     return std::sqrt(
@@ -84,7 +106,7 @@ double Palette::computeDistance(SDL_Color color1, SDL_Color color2) const
                 + std::pow(((double)color1.b - (double)color2.b), 2.0));
 }
 
-uint8_t Palette::computeNearestColor(SDL_Color target)
+col_t Palette::computeNearestColor(SDL_Color target)
 {
     uint8_t minIndex = 0;
     double minDistance = computeDistance(target, m_palette[0]);

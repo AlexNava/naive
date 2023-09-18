@@ -10,9 +10,14 @@ class Palette
 {
 public:
     Palette(Video *pVideo = nullptr);
-    void setColor(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+    void setColor(col_t index, uint8_t r, uint8_t g, uint8_t b);
+    SDL_Color getColor(col_t index);
 
     void computeLookupTables();
+
+    col_t getLightedColor(col_t color, col_t light);
+    col_t getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha);
+    col_t getAddedColor(col_t color, light_t light);
 
 private:
     SDL_Color *m_pGlobalPalette;
@@ -22,7 +27,7 @@ private:
     uint8_t m_addBlendTable[constants::PALETTE_ENTRIES][constants::PALETTE_ENTRIES];
 
     double computeDistance(SDL_Color color1, SDL_Color color2) const;
-    uint8_t computeNearestColor(SDL_Color target);
+    col_t computeNearestColor(SDL_Color target);
 
     Video *m_pVideo;
 };

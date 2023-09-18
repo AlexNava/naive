@@ -9,6 +9,7 @@ include_directories("./glm")
 set(NAIVE_SOURCES
     main.cpp
     
+    naive_defs.cpp
     video.cpp
     texture.cpp
     palette.cpp
