@@ -15,9 +15,8 @@ Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
         m_isValid = true;
         uShift = functions::getPowOf2(constants::TEXTURE_SPACE_SIZE / w);
         vShift = functions::getPowOf2(constants::TEXTURE_SPACE_SIZE / h);
+        m_mipNumber = 1;
     }
-
-    m_mipNumber = 0;
 }
 
 Texture::~Texture()
@@ -27,14 +26,18 @@ Texture::~Texture()
 
 col_t Texture::getTexel(uint16_t u, uint16_t v, uint8_t mipLevel) const
 {
-    col_t result;
+    if (mipLevel >= m_mipNumber)
+        mipLevel = m_mipNumber - 1;
 
-    return result;
+    u >>= (uShift + mipLevel);
+    v >>= (vShift + mipLevel);
+
+    return *(accessArray(m_colorTexels[mipLevel], u, v, m_width >> mipLevel));
 }
 
 void Texture::calculateMips()
 {
-    m_mipNumber = 0;
+    m_mipNumber = 1;
     uint16_t h = m_height;
     uint16_t w = m_width;
 

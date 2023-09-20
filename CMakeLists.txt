@@ -4,6 +4,9 @@ project(Naive LANGUAGES CXX)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
+find_package(SDL2_image REQUIRED)
+include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
+
 include_directories("./glm")
 
 set(NAIVE_SOURCES
@@ -12,15 +15,21 @@ set(NAIVE_SOURCES
     naive_defs.cpp
     video.cpp
     texture.cpp
+    textureloader.cpp
     palette.cpp
 
     naive_defs.hpp
     video.hpp
     texture.hpp
+    textureloader.hpp
     palette.hpp
 )
 
 add_executable(Naive ${NAIVE_SOURCES})
 
 string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES) # fixes bug with trailing whitespace in some SDL2 versions
-target_link_libraries(Naive ${SDL2_LIBRARIES})
+target_link_libraries(Naive ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+
+# Copy SDL2.dll and SDL2_image.dll to the output directory
+file(COPY ${SDL2_DLL} DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${SDL2_IMAGE_DLL} DESTINATION ${CMAKE_BINARY_DIR})
