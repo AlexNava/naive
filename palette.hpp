@@ -1,7 +1,7 @@
 #ifndef PALETTE_HPP
 #define PALETTE_HPP
 
-#include <SDL2/SDL_pixels.h>
+#include "SDL2/SDL_pixels.h"
 #include "naive_defs.hpp"
 
 class Video;

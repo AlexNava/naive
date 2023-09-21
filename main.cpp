@@ -1,5 +1,6 @@
-#include <SDL2/SDL.h>
 #include <cstdio>
+
+#include "SDL2/SDL.h"
 
 #include "video.hpp"
 #include "palette.hpp"
