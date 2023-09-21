@@ -28,7 +28,8 @@ set(NAIVE_SOURCES
 add_executable(Naive ${NAIVE_SOURCES})
 
 string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES) # fixes bug with trailing whitespace in some SDL2 versions
-target_link_libraries(Naive ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+target_link_libraries(Naive ${SDL2_LIBRARIES})
+target_link_libraries(Naive SDL2_image::SDL2_image)
 
 # Copy SDL2.dll and SDL2_image.dll to the output directory
 file(COPY ${SDL2_DLL} DESTINATION ${CMAKE_BINARY_DIR})

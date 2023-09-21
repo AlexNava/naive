@@ -10,7 +10,7 @@ TextureLoader &TextureLoader::getInstance()
 
 TextureLoader::TextureLoader()
 {
-    IMG_Init(0);
+    SDL_Surface *imgSurf = IMG_Load("test");
 }
 
 TextureLoader::~TextureLoader()
