@@ -1,5 +1,6 @@
 #include "texture.hpp"
 #include "palette.hpp"
+#include <cstring>
 
 Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
 {
@@ -16,6 +17,12 @@ Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
         uShift = functions::getPowOf2(constants::TEXTURE_SPACE_SIZE / w);
         vShift = functions::getPowOf2(constants::TEXTURE_SPACE_SIZE / h);
         m_mipNumber = 1;
+        m_calcMips = true;
+        m_palette = &Palette::getInstance();
+        col_t *pColorBuf = new col_t[w * h];
+        m_colorTexels.push_back(pColorBuf);
+        col_t *pAlphaBuf = new col_t[w * h];
+        m_alphaTexels.push_back(pAlphaBuf);
     }
 }
 
@@ -40,6 +47,7 @@ void Texture::calculateMips()
     m_mipNumber = 1;
     uint16_t h = m_height;
     uint16_t w = m_width;
+    deleteBitmaps(1);
 
     // add mips until w or h are divisible by 2
     while (!(h & 1) && !(w & 1))
@@ -50,6 +58,7 @@ void Texture::calculateMips()
 
         col_t *hiBuf = m_colorTexels[m_mipNumber - 1];
         col_t *buffer = new col_t [h * w];
+        col_t *alphaBuf = new col_t [h * w];
 
         for (uint16_t u = 0; u < w; ++u)
             for (uint16_t v = 0; v < h; ++v)
@@ -64,19 +73,20 @@ void Texture::calculateMips()
             }
 
         m_colorTexels.push_back(buffer);
+        m_alphaTexels.push_back(alphaBuf);
     }
 }
 
-void Texture::deleteBitmaps()
+void Texture::deleteBitmaps(uint8_t startingMipLevel)
 {
-    for (int iMip = 0; iMip < m_colorTexels.size(); ++iMip)
+    for (int iMip = startingMipLevel; iMip < m_colorTexels.size(); ++iMip)
     {
         delete[] m_colorTexels[iMip];
         m_colorTexels[iMip] = nullptr;
     }
     m_colorTexels.clear();
 
-    for (int iMip = 0; iMip < m_alphaTexels.size(); ++iMip)
+    for (int iMip = startingMipLevel; iMip < m_alphaTexels.size(); ++iMip)
     {
         delete[] m_alphaTexels[iMip];
         m_alphaTexels[iMip] = nullptr;
@@ -108,4 +118,22 @@ col_t Texture::blendColors(col_t a, col_t b, col_t c, col_t d) const
 col_t *Texture::accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength) const
 {
     return buf + x + y * rowLength;
+}
+
+void Texture::setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel)
+{
+    if ((mipLevel < m_mipNumber)
+        && (size == m_width >> mipLevel * m_height >> mipLevel))
+    {
+        col_t *dest = m_colorTexels[mipLevel];
+        memcpy(dest, buffer, size);
+
+        if (m_calcMips && mipLevel == 0)
+            calculateMips();
+    }
+}
+
+void Texture::setCalcMips(bool newCalcMips)
+{
+    m_calcMips = newCalcMips;
 }

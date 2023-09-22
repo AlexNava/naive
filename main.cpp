@@ -4,13 +4,15 @@
 
 #include "video.hpp"
 #include "palette.hpp"
+#include "textureloader.hpp"
 
 int main(int argc, char **argv)
 {
-    Palette palette;
+    Texture *pTex = TextureLoader::getInstance().newTextureFromFile("data/awesome-lion.gif");
+    TextureLoader::getInstance().loadPaletteFromFile("data/awesome-lion.gif");
 
     uint32_t time = SDL_GetTicks();
-    palette.computeLookupTables();
+    Palette::getInstance().computeLookupTables();
     time = SDL_GetTicks() - time;
     printf ("lookup tables computed in %d ms\n", time);
 

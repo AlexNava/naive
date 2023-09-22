@@ -1,4 +1,5 @@
 #include "video.hpp"
+#include "palette.hpp"
 
 Video::Video()
 {
@@ -20,6 +21,8 @@ Video::Video()
         m_screenWidth, m_screenHeight);
     m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
     m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+
+    Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 }
 
 bool Video::setInternalResolution(int width, int height)
@@ -46,6 +49,8 @@ bool Video::setInternalResolution(int width, int height)
             m_screenWidth, m_screenHeight);
         m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
         m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+
+        Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 
         result &= (m_pSdlTexture != nullptr);
         result &= (m_pRgbSurface != nullptr);

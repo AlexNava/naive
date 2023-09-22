@@ -1,9 +1,22 @@
+#include <cmath>
 #include "palette.hpp"
-#include "video.hpp"
 
-Palette::Palette(Video *pVideo)
+Palette &Palette::getInstance()
 {
-    m_pVideo = pVideo;
+    static Palette singleton;
+    return singleton;
+}
+
+Palette::Palette()
+{
+}
+
+void Palette::setSystemPalette(SDL_Palette *newSystemPalette)
+{
+    m_systemPalette = newSystemPalette;
+
+    if (m_systemPalette != nullptr)
+        SDL_SetPaletteColors(m_systemPalette, m_palette, 0, constants::PALETTE_ENTRIES);
 }
 
 void Palette::setColor(col_t index, uint8_t r, uint8_t g, uint8_t b)
@@ -11,6 +24,9 @@ void Palette::setColor(col_t index, uint8_t r, uint8_t g, uint8_t b)
     m_palette[index].r = r;
     m_palette[index].g = g;
     m_palette[index].b = b;
+
+    if (m_systemPalette != nullptr)
+        SDL_SetPaletteColors(m_systemPalette, &m_palette[index], index, 1);
 }
 
 SDL_Color Palette::getColor(col_t index)

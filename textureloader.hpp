@@ -1,11 +1,18 @@
-#ifndef TEXTURELOADER_HPP
-#define TEXTURELOADER_HPP
+#ifndef IMAGELOADER_HPP
+#define IMAGELOADER_HPP
 
+#include <string>
+
+class Palette;
+class Texture;
 
 class TextureLoader
 {
 public:
-    TextureLoader &getInstance();
+    static TextureLoader &getInstance();
+
+    void loadPaletteFromFile(std::string filePath);
+    Texture *newTextureFromFile(std::string filePath);
 
 private:
     TextureLoader();
@@ -13,4 +20,4 @@ private:
 
 };
 
-#endif // TEXTURELOADER_HPP
+#endif // IMAGELOADER_HPP
