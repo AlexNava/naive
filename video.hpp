@@ -5,6 +5,8 @@
 #include "glm/ext.hpp"
 #include "SDL2/SDL.h"
 
+#include "naive_defs.hpp"
+
 class Video
 {
 public:
@@ -13,7 +15,9 @@ public:
     bool setFullscreen(bool fullscreen);
     bool setWindowedScale(int pixelScale);
 
-    char *getVgaScreen() const;
+    col_t *getVgaScreen() const;
+
+    void present();
 
 private:
     glm::dvec3 points[100];
@@ -23,10 +27,7 @@ private:
     int m_windowScale;
     bool m_fullscreen;
 
-    char *vgaScreen;
-
-    char *virScr;
-    char *virScr2;
+    col_t *vgaScreen;
 
     SDL_Window   *m_pWin         = nullptr;
     SDL_Renderer *m_pSdlRenderer = nullptr;

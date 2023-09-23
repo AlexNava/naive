@@ -79,7 +79,44 @@ bool Video::setWindowedScale(int pixelScale)
     return false;
 }
 
-char *Video::getVgaScreen() const
+col_t *Video::getVgaScreen() const
 {
     return vgaScreen;
+}
+
+void Video::present()
+{
+    void *texturePixels;
+    int texturePitch;
+
+    if (!m_pVgaSurface)
+        return;
+
+    /*
+    SDL_Event evt;
+    while (SDL_PollEvent(&evt))
+    {
+        if (evt.type == SDL_QUIT)
+        {
+            exit(0);
+        }
+    }
+
+    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
+    */
+
+    SDL_ClearError();
+    SDL_BlitSurface(m_pVgaSurface, NULL, m_pRgbSurface, NULL); // with format conversion
+
+    SDL_LockTexture(m_pSdlTexture, NULL, &texturePixels, &texturePitch);
+        SDL_ConvertPixels(m_pRgbSurface->w, m_pRgbSurface->h,
+        m_pRgbSurface->format->format,
+        m_pRgbSurface->pixels, m_pRgbSurface->pitch,
+        SDL_PIXELFORMAT_ARGB8888,
+        texturePixels, texturePitch);
+    SDL_UnlockTexture(m_pSdlTexture);
+
+    SDL_RenderClear(m_pSdlRenderer);
+    SDL_RenderCopy(m_pSdlRenderer, m_pSdlTexture, NULL, NULL);
+    SDL_RenderPresent(m_pSdlRenderer);
 }

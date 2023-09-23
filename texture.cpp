@@ -5,6 +5,8 @@
 Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
 {
     m_isValid = false;
+    m_width = 0;
+    m_height = 0;
 
     if ((functions::isPowOf2(w) && functions::isPowOf2(h))
         && (w <= constants::TEXTURE_SPACE_SIZE) && (h <= constants::TEXTURE_SPACE_SIZE)
@@ -44,17 +46,16 @@ col_t Texture::getTexel(uint16_t u, uint16_t v, uint8_t mipLevel) const
 
 void Texture::calculateMips()
 {
-    m_mipNumber = 1;
     uint16_t h = m_height;
     uint16_t w = m_width;
     deleteBitmaps(1);
+    m_mipNumber = 1;
 
     // add mips until w or h are divisible by 2
     while (!(h & 1) && !(w & 1))
     {
         h >>= 1;
         w >>= 1;
-        ++m_mipNumber;
 
         col_t *hiBuf = m_colorTexels[m_mipNumber - 1];
         col_t *buffer = new col_t [h * w];
@@ -74,6 +75,7 @@ void Texture::calculateMips()
 
         m_colorTexels.push_back(buffer);
         m_alphaTexels.push_back(alphaBuf);
+        ++m_mipNumber;
     }
 }
 
@@ -84,14 +86,14 @@ void Texture::deleteBitmaps(uint8_t startingMipLevel)
         delete[] m_colorTexels[iMip];
         m_colorTexels[iMip] = nullptr;
     }
-    m_colorTexels.clear();
+    m_colorTexels.resize(startingMipLevel);
 
     for (int iMip = startingMipLevel; iMip < m_alphaTexels.size(); ++iMip)
     {
         delete[] m_alphaTexels[iMip];
         m_alphaTexels[iMip] = nullptr;
     }
-    m_alphaTexels.clear();
+    m_alphaTexels.resize(startingMipLevel);
 }
 
 col_t Texture::blendColors(col_t a, col_t b, col_t c, col_t d) const
@@ -123,7 +125,7 @@ col_t *Texture::accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLeng
 void Texture::setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel)
 {
     if ((mipLevel < m_mipNumber)
-        && (size == m_width >> mipLevel * m_height >> mipLevel))
+        && (size == (m_width >> mipLevel) * (m_height >> mipLevel)))
     {
         col_t *dest = m_colorTexels[mipLevel];
         memcpy(dest, buffer, size);

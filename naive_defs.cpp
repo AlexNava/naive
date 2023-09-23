@@ -14,7 +14,7 @@ int8_t functions::getPowOf2(uint64_t number)
         return -1;
 
     int8_t power = 0;
-    while (number > 0)
+    while (number > 1)
     {
         number >>= 1;
         ++power;
