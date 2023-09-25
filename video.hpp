@@ -16,8 +16,11 @@ public:
     bool setWindowedScale(int pixelScale);
 
     col_t *getVgaScreen() const;
+    int screenHeight() const;
+    int screenWidth() const;
 
     void present();
+
 
 private:
     glm::dvec3 points[100];

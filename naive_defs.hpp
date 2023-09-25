@@ -19,6 +19,7 @@ namespace functions
 {
     int8_t getPowOf2(uint64_t number);
     bool   isPowOf2(uint64_t number);
+    col_t *accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength);
 }
 
 #endif // NAIVE_DEFS_HPP

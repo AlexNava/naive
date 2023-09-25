@@ -28,6 +28,8 @@ public:
 
     void setCalcMips(bool newCalcMips);
 
+    uint8_t mipNumber() const;
+
 private:
     bool m_isValid;
     uint16_t m_width;
@@ -46,7 +48,6 @@ private:
     void calculateMips();
     void deleteBitmaps(uint8_t startingMipLevel = 0);
     col_t blendColors(col_t a, col_t b, col_t c, col_t d) const; // used to calculate mip levels
-    col_t *accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength) const;
 };
 
 #endif // TEXTURE_HPP

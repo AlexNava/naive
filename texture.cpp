@@ -41,7 +41,7 @@ col_t Texture::getTexel(uint16_t u, uint16_t v, uint8_t mipLevel) const
     u >>= (uShift + mipLevel);
     v >>= (vShift + mipLevel);
 
-    return *(accessArray(m_colorTexels[mipLevel], u, v, m_width >> mipLevel));
+    return *(functions::accessArray(m_colorTexels[mipLevel], u, v, m_width >> mipLevel));
 }
 
 void Texture::calculateMips()
@@ -64,12 +64,12 @@ void Texture::calculateMips()
         for (uint16_t u = 0; u < w; ++u)
             for (uint16_t v = 0; v < h; ++v)
             {
-                col_t *pNewTexel = accessArray(buffer, u, v, w);
+                col_t *pNewTexel = functions::accessArray(buffer, u, v, w);
                 *pNewTexel = blendColors(
-                        *accessArray(hiBuf, u * 2, v * 2, w * 2),
-                        *accessArray(hiBuf, u * 2 + 1, v * 2, w * 2),
-                        *accessArray(hiBuf, u * 2, v * 2 + 1, w * 2),
-                        *accessArray(hiBuf, u * 2 + 1, v * 2 + 1, w * 2)
+                        *functions::accessArray(hiBuf, u * 2, v * 2, w * 2),
+                        *functions::accessArray(hiBuf, u * 2 + 1, v * 2, w * 2),
+                        *functions::accessArray(hiBuf, u * 2, v * 2 + 1, w * 2),
+                        *functions::accessArray(hiBuf, u * 2 + 1, v * 2 + 1, w * 2)
                     );
             }
 
@@ -117,11 +117,6 @@ col_t Texture::blendColors(col_t a, col_t b, col_t c, col_t d) const
     }
 }
 
-col_t *Texture::accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength) const
-{
-    return buf + x + y * rowLength;
-}
-
 void Texture::setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel)
 {
     if ((mipLevel < m_mipNumber)
@@ -138,4 +133,9 @@ void Texture::setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel)
 void Texture::setCalcMips(bool newCalcMips)
 {
     m_calcMips = newCalcMips;
+}
+
+uint8_t Texture::mipNumber() const
+{
+    return m_mipNumber;
 }

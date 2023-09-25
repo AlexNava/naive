@@ -21,3 +21,8 @@ int8_t functions::getPowOf2(uint64_t number)
     }
     return power;
 }
+
+col_t *functions::accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength)
+{
+    return buf + x + y * rowLength;
+}

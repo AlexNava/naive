@@ -21,6 +21,7 @@ Video::Video()
         m_screenWidth, m_screenHeight);
     m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
     m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+    vgaScreen = (col_t*)m_pVgaSurface->pixels;
 
     Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 }
@@ -49,6 +50,7 @@ bool Video::setInternalResolution(int width, int height)
             m_screenWidth, m_screenHeight);
         m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
         m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
+        vgaScreen = (col_t*)m_pVgaSurface->pixels;
 
         Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 
@@ -92,7 +94,7 @@ void Video::present()
     if (!m_pVgaSurface)
         return;
 
-    /*
+
     SDL_Event evt;
     while (SDL_PollEvent(&evt))
     {
@@ -103,7 +105,7 @@ void Video::present()
     }
 
     SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
-    */
+
 
     SDL_ClearError();
     SDL_BlitSurface(m_pVgaSurface, NULL, m_pRgbSurface, NULL); // with format conversion
@@ -119,4 +121,14 @@ void Video::present()
     SDL_RenderClear(m_pSdlRenderer);
     SDL_RenderCopy(m_pSdlRenderer, m_pSdlTexture, NULL, NULL);
     SDL_RenderPresent(m_pSdlRenderer);
+}
+
+int Video::screenHeight() const
+{
+    return m_screenHeight;
+}
+
+int Video::screenWidth() const
+{
+    return m_screenWidth;
 }
