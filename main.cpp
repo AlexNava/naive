@@ -40,11 +40,11 @@ int main(int argc, char **argv)
             videoMgr.setFullscreen(true);
         if (cnt == 50)
             videoMgr.setFullscreen(false);
-        if (cnt == 75)
+        /*if (cnt == 75)
         {
             videoMgr.setInternalResolution(640, 480);
             videoMgr.setWindowedScale(2);
-        }
+        }*/
     }
 
     delete pTex;
