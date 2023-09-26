@@ -27,24 +27,33 @@ int main(int argc, char **argv)
     int mip = 0;
     int mipDir = 1;
     int cnt = 0;
+    time = SDL_GetTicks();
     while(true)
     {
-        testBlit(videoMgr, *pTex, mip);
+        for (int i = 0; i < 1; ++i)
+            testBlit(videoMgr, *pTex, mip);
         videoMgr.present();
         mip += mipDir;
         if (mip <= 0 || mip >= pTex->mipNumber())
             mipDir = -mipDir;
-        SDL_Delay(200);
+        //SDL_Delay(200);
         ++cnt;
-        if (cnt == 25)
-            videoMgr.setFullscreen(true);
-        if (cnt == 50)
-            videoMgr.setFullscreen(false);
+        //if (cnt == 25)
+        //    videoMgr.setFullscreen(true);
+        //if (cnt == 50)
+        //    videoMgr.setFullscreen(false);
         /*if (cnt == 75)
         {
             videoMgr.setInternalResolution(640, 480);
             videoMgr.setWindowedScale(2);
         }*/
+        if (cnt == 1000)
+        {
+            time = SDL_GetTicks() - time;
+            printf ("1000 frames in %d ms = %f fps\n", time, (1000000.0 / time));
+            cnt = 0;
+            time = SDL_GetTicks();
+        }
     }
 
     delete pTex;
@@ -57,9 +66,10 @@ void testBlit(Video &video, Texture &texture, int mipLevel)
     int w = video.screenWidth();
     col_t *buf = video.getVgaScreen();
 
+    texture.setMipLevel(mipLevel);
     for (int y = 0; y < std::min(1024, video.screenHeight()); ++y)
         for (int x = 0; x < std::min(1024, video.screenWidth()); ++x)
         {
-            *functions::accessArray(buf, x, y, w) = texture.getTexel(x, y, mipLevel);
+            *functions::accessArray(buf, x, y, w) = texture.getTexel(x, y);
         }
 }

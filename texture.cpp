@@ -26,6 +26,8 @@ Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
         col_t *pAlphaBuf = new col_t[w * h];
         m_alphaTexels.push_back(pAlphaBuf);
     }
+
+    setMipLevel(0);
 }
 
 Texture::~Texture()
@@ -33,15 +35,12 @@ Texture::~Texture()
     deleteBitmaps();
 }
 
-col_t Texture::getTexel(uint16_t u, uint16_t v, uint8_t mipLevel) const
+col_t Texture::getTexel(uint16_t u, uint16_t v) const
 {
-    if (mipLevel >= m_mipNumber)
-        mipLevel = m_mipNumber - 1;
+    u >>= m_effUShift;
+    v >>= m_effVShift;
 
-    u >>= (uShift + mipLevel);
-    v >>= (vShift + mipLevel);
-
-    return *(functions::accessArray(m_colorTexels[mipLevel], u, v, m_width >> mipLevel));
+    return *(functions::accessArray(m_colorTexels[m_mipLevel], u, v, m_effWidth));
 }
 
 void Texture::calculateMips()
@@ -105,7 +104,7 @@ col_t Texture::blendColors(col_t a, col_t b, col_t c, col_t d) const
     switch (m_type) {
     case TextureType::COLOR:
         colAB = m_palette->getBlendedColor(a, b, constants::ALPHA_LEVELS / 2);
-        colCD = m_palette->getBlendedColor(d, c, constants::ALPHA_LEVELS / 2);
+        colCD = m_palette->getBlendedColor(c, d, constants::ALPHA_LEVELS / 2);
         return m_palette->getBlendedColor(colAB, colCD, constants::ALPHA_LEVELS / 2);
         break;
     case TextureType::LIGHT:
@@ -138,4 +137,12 @@ void Texture::setCalcMips(bool newCalcMips)
 uint8_t Texture::mipNumber() const
 {
     return m_mipNumber;
+}
+
+void Texture::setMipLevel(uint8_t newMipLevel)
+{
+    m_mipLevel  = ((newMipLevel < m_mipNumber) ? newMipLevel : m_mipNumber - 1);
+    m_effUShift = uShift + m_mipLevel;
+    m_effVShift = vShift + m_mipLevel;
+    m_effWidth  = m_width >> m_mipLevel;
 }

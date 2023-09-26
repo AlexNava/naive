@@ -23,12 +23,14 @@ public:
     Texture(uint16_t w, uint16_t h, TextureType texType);
     ~Texture();
 
-    col_t getTexel(uint16_t u, uint16_t v, uint8_t mipLevel) const;
+    col_t getTexel(uint16_t u, uint16_t v) const;
     void setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel = 0);
 
     void setCalcMips(bool newCalcMips);
 
     uint8_t mipNumber() const;
+
+    void setMipLevel(uint8_t newMipLevel);
 
 private:
     bool m_isValid;
@@ -44,6 +46,11 @@ private:
 
     uint8_t uShift;
     uint8_t vShift;
+
+    uint8_t  m_effUShift;
+    uint8_t  m_effVShift;
+    uint16_t m_effWidth;
+    uint8_t  m_mipLevel;
 
     void calculateMips();
     void deleteBitmaps(uint8_t startingMipLevel = 0);

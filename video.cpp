@@ -9,7 +9,7 @@ Video::Video()
     m_fullscreen   = false;
 
     m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
-    m_pSdlRenderer = SDL_CreateRenderer(m_pWin, -1, SDL_RENDERER_PRESENTVSYNC);
+    m_pSdlRenderer = SDL_CreateRenderer(m_pWin, -1, 0);
 
     //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
     SDL_RenderSetLogicalSize(m_pSdlRenderer, m_screenWidth, m_screenHeight);
