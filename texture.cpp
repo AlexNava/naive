@@ -34,7 +34,7 @@ Texture::~Texture()
 {
     deleteBitmaps();
 }
-
+/*
 col_t Texture::getTexel(uint16_t u, uint16_t v) const
 {
     u >>= m_effUShift;
@@ -42,7 +42,7 @@ col_t Texture::getTexel(uint16_t u, uint16_t v) const
 
     return *(functions::accessArray(m_colorTexels[m_mipLevel], u, v, m_effWidth));
 }
-
+*/
 void Texture::calculateMips()
 {
     uint16_t h = m_height;

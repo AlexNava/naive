@@ -16,8 +16,15 @@ public:
     bool setWindowedScale(int pixelScale);
 
     col_t *getVgaScreen() const;
-    int screenHeight() const;
-    int screenWidth() const;
+    inline int screenHeight() const
+    {
+        return m_screenHeight;
+    }
+
+    inline int screenWidth() const
+    {
+        return m_screenWidth;
+    }
 
     void present();
 

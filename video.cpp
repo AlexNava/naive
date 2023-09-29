@@ -122,7 +122,7 @@ void Video::present()
     SDL_RenderCopy(m_pSdlRenderer, m_pSdlTexture, NULL, NULL);
     SDL_RenderPresent(m_pSdlRenderer);
 }
-
+/*
 int Video::screenHeight() const
 {
     return m_screenHeight;
@@ -132,3 +132,4 @@ int Video::screenWidth() const
 {
     return m_screenWidth;
 }
+*/

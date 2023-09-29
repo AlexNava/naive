@@ -23,7 +23,14 @@ public:
     Texture(uint16_t w, uint16_t h, TextureType texType);
     ~Texture();
 
-    col_t getTexel(uint16_t u, uint16_t v) const;
+    inline col_t getTexel(uint16_t u, uint16_t v) const
+    {
+        u >>= m_effUShift;
+        v >>= m_effVShift;
+
+        return *(functions::accessArray(m_colorTexels[m_mipLevel], u, v, m_effWidth));
+    }
+
     void setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel = 0);
 
     void setCalcMips(bool newCalcMips);
