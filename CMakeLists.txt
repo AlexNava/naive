@@ -22,12 +22,16 @@ set(NAIVE_SOURCES
     texture.cpp
     textureloader.cpp
     palette.cpp
+    renderer.cpp
+    obj3d.cpp
 
     naive_defs.hpp
     video.hpp
     texture.hpp
     textureloader.hpp
     palette.hpp
+    renderer.hpp
+    obj3d.hpp
 )
 
 add_executable(Naive ${NAIVE_SOURCES})
