@@ -3,6 +3,7 @@
 #include "SDL2/SDL.h"
 
 #include "video.hpp"
+#include "screen.hpp"
 #include "palette.hpp"
 #include "texture.hpp"
 #include "textureloader.hpp"
@@ -22,7 +23,7 @@ int main(int argc, char **argv)
 
     Video videoMgr;
     videoMgr.setWindowedScale(1);
-    videoMgr.setInternalResolution(1024, 1024);
+    videoMgr.setInternalResolution(640, 480);
     SDL_Delay(1000);
     int mip = 0;
     int mipDir = 1;
@@ -64,12 +65,14 @@ int main(int argc, char **argv)
 void testBlit(Video &video, Texture &texture, int mipLevel)
 {
     int w = video.screenWidth();
-    col_t *buf = video.getVgaScreen();
+    Screen *pScr = video.pVgaScreen();
+    col_t *buf = pScr->pBuffer();
 
     texture.setMipLevel(mipLevel);
     for (int y = 0; y < std::min(1024, video.screenHeight()); ++y)
         for (int x = 0; x < std::min(1024, video.screenWidth()); ++x)
         {
             *functions::accessArray(buf, x, y, w) = texture.getTexel(x, y);
+            //pScr->putPixel(x, y, texture.getTexel(x, y));
         }
 }

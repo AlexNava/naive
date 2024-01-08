@@ -1,5 +1,6 @@
 #include "video.hpp"
 #include "palette.hpp"
+#include "screen.hpp"
 
 Video::Video()
 {
@@ -20,8 +21,9 @@ Video::Video()
         SDL_TEXTUREACCESS_STREAMING,
         m_screenWidth, m_screenHeight);
     m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-    m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
-    vgaScreen = (col_t*)m_pVgaSurface->pixels;
+    m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8 * sizeof(col_t), 0, 0, 0, 0);
+    m_pVgaBuffer = (col_t*)m_pVgaSurface->pixels;
+    m_pVgaScreen = new Screen(m_screenWidth, m_screenHeight, m_pVgaBuffer);
 
     Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 }
@@ -49,8 +51,12 @@ bool Video::setInternalResolution(int width, int height)
             SDL_TEXTUREACCESS_STREAMING,
             m_screenWidth, m_screenHeight);
         m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-        m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
-        vgaScreen = (col_t*)m_pVgaSurface->pixels;
+        m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8 * sizeof(col_t), 0, 0, 0, 0);
+        m_pVgaBuffer = (col_t*)m_pVgaSurface->pixels;
+
+        if (m_pVgaScreen)
+            delete m_pVgaScreen;
+        m_pVgaScreen = new Screen(m_screenWidth, m_screenHeight, m_pVgaBuffer);
 
         Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 
@@ -79,11 +85,6 @@ bool Video::setWindowedScale(int pixelScale)
         return true;
     }
     return false;
-}
-
-col_t *Video::getVgaScreen() const
-{
-    return vgaScreen;
 }
 
 void Video::present()
@@ -121,6 +122,11 @@ void Video::present()
     SDL_RenderClear(m_pSdlRenderer);
     SDL_RenderCopy(m_pSdlRenderer, m_pSdlTexture, NULL, NULL);
     SDL_RenderPresent(m_pSdlRenderer);
+}
+
+Screen *Video::pVgaScreen() const
+{
+    return m_pVgaScreen;
 }
 /*
 int Video::screenHeight() const

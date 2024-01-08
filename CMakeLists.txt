@@ -19,6 +19,8 @@ set(NAIVE_SOURCES
     
     naive_defs.cpp
     video.cpp
+    screen.cpp
+    viewport.cpp
     texture.cpp
     textureloader.cpp
     palette.cpp
@@ -27,6 +29,8 @@ set(NAIVE_SOURCES
 
     naive_defs.hpp
     video.hpp
+    screen.hpp
+    viewport.hpp
     texture.hpp
     textureloader.hpp
     palette.hpp

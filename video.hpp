@@ -7,6 +7,8 @@
 
 #include "naive_defs.hpp"
 
+class Screen;
+
 class Video
 {
 public:
@@ -15,7 +17,6 @@ public:
     bool setFullscreen(bool fullscreen);
     bool setWindowedScale(int pixelScale);
 
-    col_t *getVgaScreen() const;
     inline int screenHeight() const
     {
         return m_screenHeight;
@@ -28,6 +29,7 @@ public:
 
     void present();
 
+    Screen *pVgaScreen() const;
 
 private:
     glm::dvec3 points[100];
@@ -37,7 +39,8 @@ private:
     int m_windowScale;
     bool m_fullscreen;
 
-    col_t *vgaScreen;
+    col_t *m_pVgaBuffer;
+    Screen *m_pVgaScreen;
 
     SDL_Window   *m_pWin         = nullptr;
     SDL_Renderer *m_pSdlRenderer = nullptr;
