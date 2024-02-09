@@ -80,14 +80,14 @@ void Texture::calculateMips()
 
 void Texture::deleteBitmaps(uint8_t startingMipLevel)
 {
-    for (int iMip = startingMipLevel; iMip < m_colorTexels.size(); ++iMip)
+    for (uint16_t iMip = startingMipLevel; iMip < m_colorTexels.size(); ++iMip)
     {
         delete[] m_colorTexels[iMip];
         m_colorTexels[iMip] = nullptr;
     }
     m_colorTexels.resize(startingMipLevel);
 
-    for (int iMip = startingMipLevel; iMip < m_alphaTexels.size(); ++iMip)
+    for (uint16_t iMip = startingMipLevel; iMip < m_alphaTexels.size(); ++iMip)
     {
         delete[] m_alphaTexels[iMip];
         m_alphaTexels[iMip] = nullptr;
@@ -119,7 +119,7 @@ col_t Texture::blendColors(col_t a, col_t b, col_t c, col_t d) const
 void Texture::setTexels(col_t *buffer, uint32_t size, uint8_t mipLevel)
 {
     if ((mipLevel < m_mipNumber)
-        && (size == (m_width >> mipLevel) * (m_height >> mipLevel)))
+        && (size == uint32_t(m_width >> mipLevel) * uint32_t(m_height >> mipLevel)))
     {
         col_t *dest = m_colorTexels[mipLevel];
         memcpy(dest, buffer, size);
