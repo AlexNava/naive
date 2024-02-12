@@ -6,13 +6,16 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
+find_package(glm REQUIRED)
+include_directories(${GLM_INCLUDE_DIRS})
+
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
-include_directories("./glm")
+#include_directories("./glm")
 
 set(NAIVE_SOURCES
     main.cpp
@@ -41,6 +44,7 @@ set(NAIVE_SOURCES
 add_executable(Naive ${NAIVE_SOURCES})
 
 string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES) # fixes bug with trailing whitespace in some SDL2 versions
+target_link_libraries(Naive glm::glm)
 target_link_libraries(Naive ${SDL2_LIBRARIES})
 target_link_libraries(Naive SDL2_image::SDL2_image)
 
