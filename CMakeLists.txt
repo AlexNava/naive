@@ -15,8 +15,10 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
+include_directories(.)
+include_directories(3d)
+
 set(NAIVE_SOURCES
-    main.cpp
     
     naive_defs.cpp
     video.cpp
@@ -25,8 +27,10 @@ set(NAIVE_SOURCES
     texture.cpp
     textureloader.cpp
     palette.cpp
-    renderer.cpp
-    obj3d.cpp
+
+    3d/renderer.cpp
+    3d/obj3d.cpp
+    3d/scene.cpp
 
     naive_defs.hpp
     video.hpp
@@ -35,11 +39,16 @@ set(NAIVE_SOURCES
     texture.hpp
     textureloader.hpp
     palette.hpp
-    renderer.hpp
-    obj3d.hpp
+
+    3d/renderer.hpp
+    3d/obj3d.hpp
+    3d/scene.hpp
 )
 
-add_executable(Naive ${NAIVE_SOURCES})
+add_executable(Naive
+    main.cpp
+    ${NAIVE_SOURCES}
+)
 
 string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES) # fixes bug with trailing whitespace in some SDL2 versions
 target_link_libraries(Naive glm::glm)
