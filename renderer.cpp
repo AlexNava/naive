@@ -1,6 +1,8 @@
 #include "renderer.hpp"
+#include "glm/glm.hpp"
+#include "screen.hpp"
 
-Renderer::Renderer()
+Renderer::Renderer(Screen *targetScreen)
 {
-
+    m_pScreeen = targetScreen;
 }

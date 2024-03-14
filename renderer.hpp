@@ -2,19 +2,19 @@
 #define RENDERER_HPP
 
 #include "naive_defs.hpp"
-#include "glm/glm.hpp"
 
+class Screen;
 class Obj3D;
 
 class Renderer
 {
 public:
-    Renderer();
+    Renderer(Screen *targetScreen);
 
 private:
     int m_screenWidth;
     int m_screenHeight;
-    col_t *m_pScreeen;
+    Screen *m_pScreeen;
 };
 
 #endif // RENDERER_HPP

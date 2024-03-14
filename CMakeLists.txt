@@ -15,8 +15,6 @@ include_directories(${SDL2_INCLUDE_DIRS})
 find_package(SDL2_image REQUIRED)
 include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
-#include_directories("./glm")
-
 set(NAIVE_SOURCES
     main.cpp
     
