@@ -4,5 +4,5 @@
 
 Renderer::Renderer(Screen *targetScreen)
 {
-    m_pScreeen = targetScreen;
+    m_pScreen = targetScreen;
 }

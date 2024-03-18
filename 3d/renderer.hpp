@@ -14,7 +14,7 @@ public:
 private:
     int m_screenWidth;
     int m_screenHeight;
-    Screen *m_pScreeen;
+    Screen *m_pScreen;
 };
 
 #endif // RENDERER_HPP

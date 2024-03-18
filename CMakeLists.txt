@@ -31,6 +31,7 @@ set(NAIVE_SOURCES
     3d/renderer.cpp
     3d/obj3d.cpp
     3d/scene.cpp
+    3d/objloader.cpp
 
     naive_defs.hpp
     video.hpp
@@ -43,6 +44,7 @@ set(NAIVE_SOURCES
     3d/renderer.hpp
     3d/obj3d.hpp
     3d/scene.hpp
+    3d/objloader.hpp
 )
 
 add_executable(Naive
