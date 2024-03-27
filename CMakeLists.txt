@@ -29,9 +29,9 @@ set(NAIVE_SOURCES
     palette.cpp
 
     3d/renderer.cpp
-    3d/obj3d.cpp
     3d/scene.cpp
     3d/objloader.cpp
+    3d/mesh.cpp
 
     naive_defs.hpp
     video.hpp
@@ -42,9 +42,10 @@ set(NAIVE_SOURCES
     palette.hpp
 
     3d/renderer.hpp
-    3d/obj3d.hpp
     3d/scene.hpp
     3d/objloader.hpp
+    3d/obj3d.hpp
+    3d/mesh.hpp
 )
 
 add_executable(Naive

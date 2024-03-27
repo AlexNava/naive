@@ -3,6 +3,7 @@
 
 #include "naive_defs.hpp"
 
+class Scene;
 class Screen;
 class Obj3D;
 
@@ -11,10 +12,11 @@ class Renderer
 public:
     Renderer(Screen *targetScreen);
 
+    void setPScene(Scene *newPScene);
+
 private:
-    int m_screenWidth;
-    int m_screenHeight;
     Screen *m_pScreen;
+    Scene *m_pScene;
 };
 
 #endif // RENDERER_HPP
