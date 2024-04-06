@@ -7,11 +7,15 @@
 #include "palette.hpp"
 #include "texture.hpp"
 #include "textureloader.hpp"
+#include "3d/mesh.hpp"
+#include "3d/objloader.hpp"
 
 void testBlit(Video &video, Texture &texture, int mipLevel);
 
 int main(int argc, char **argv)
 {
+    Mesh *pA112 = ObjLoader::getInstance().loadMesh("data/a112_cleaned.obj");
+
     TextureLoader::getInstance().loadPaletteFromFile("data/awesome-lion-1024.pcx");
 
     uint32_t time = SDL_GetTicks();

@@ -17,6 +17,7 @@ include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
 
 include_directories(.)
 include_directories(3d)
+include_directories(libs)
 
 set(NAIVE_SOURCES
     
@@ -46,6 +47,8 @@ set(NAIVE_SOURCES
     3d/objloader.hpp
     3d/obj3d.hpp
     3d/mesh.hpp
+
+    libs/tiny_obj_loader.h
 )
 
 add_executable(Naive

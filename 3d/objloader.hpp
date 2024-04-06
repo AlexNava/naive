@@ -9,7 +9,7 @@ class Mesh;
 class ObjLoader
 {
 public:
-    ObjLoader &getInstance();
+    static ObjLoader &getInstance();
     Mesh *loadMesh(std::string fileName);
 private:
     ObjLoader();
