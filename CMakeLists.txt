@@ -20,7 +20,8 @@ include_directories(3d)
 include_directories(libs)
 
 set(NAIVE_SOURCES
-    
+    naive.hpp
+
     naive_defs.cpp
     video.cpp
     screen.cpp
