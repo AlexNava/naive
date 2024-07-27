@@ -17,6 +17,7 @@ Screen::Screen(uint16_t width, uint16_t height, col_t *pBuffer)
         m_pBuffer = pBuffer;
         m_width   = width;
         m_height  = height;
+        m_viewport.setLimits(0, 0, width, height);
         m_isValid = true;
     }
     else
@@ -44,4 +45,9 @@ uint16_t Screen::height() const
 col_t *Screen::pBuffer() const
 {
     return m_pBuffer;
+}
+
+Viewport &Screen::viewport()
+{
+    return m_viewport;
 }

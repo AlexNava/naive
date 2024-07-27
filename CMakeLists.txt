@@ -43,6 +43,7 @@ set(NAIVE_SOURCES
     textureloader.hpp
     palette.hpp
 
+    2d/screen_ops.hpp
     3d/renderer.hpp
     3d/scene.hpp
     3d/scenenode.hpp

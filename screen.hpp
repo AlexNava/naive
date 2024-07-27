@@ -2,6 +2,7 @@
 #define SCREEN_HPP
 
 #include "naive_defs.hpp"
+#include "viewport.hpp"
 
 // todo use this class instead of having a pointer and two integers for size
 class Screen
@@ -26,12 +27,15 @@ public:
 
     col_t *pBuffer() const;
 
+    Viewport &viewport();
+
 private:
     col_t *m_pBuffer;
     uint16_t m_width;
     uint16_t m_height;
     bool m_isValid;
     bool m_isBufferOwned;
+    Viewport m_viewport;
 };
 
 #endif // SCREEN_HPP
