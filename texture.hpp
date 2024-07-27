@@ -41,6 +41,7 @@ public:
 
 private:
     bool m_isValid;
+    bool m_isDynamic; // later
     uint16_t m_width;
     uint16_t m_height;
     std::vector<col_t*> m_colorTexels;

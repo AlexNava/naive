@@ -14,6 +14,8 @@ public:
 
     void setPScene(Scene *newPScene);
 
+    void render();
+
 private:
     Screen *m_pScreen;
     Scene *m_pScene;

@@ -7,6 +7,7 @@ typedef uint8_t col_t;
 typedef uint8_t light_t;
 typedef uint8_t alpha_t;
 typedef uint16_t matFlags_t;
+typedef uint16_t rendFlags_t;
 
 namespace constants
 {
@@ -26,6 +27,13 @@ namespace materialFlags
     const matFlags_t GOURAUD          = 1 << 3;
     const matFlags_t REFLECTION       = 1 << 4; // use additive spheremap
     const matFlags_t METAL_REFLECTION = 1 << 4; // use multiplicative spheremap (not yet)
+}
+
+namespace renderFlags
+{
+    const rendFlags_t BACKGROUND       = 1 << 0; // always render first
+    const rendFlags_t FOREGROUND       = 1 << 1; // always render last
+    const rendFlags_t DO_NOT_SORT      = 1 << 2; // do not z sort object
 }
 
 namespace functions

@@ -31,6 +31,7 @@ set(NAIVE_SOURCES
 
     3d/renderer.cpp
     3d/scene.cpp
+    3d/scenenode.cpp
     3d/objloader.cpp
     3d/mesh.cpp
 
@@ -44,6 +45,7 @@ set(NAIVE_SOURCES
 
     3d/renderer.hpp
     3d/scene.hpp
+    3d/scenenode.hpp
     3d/objloader.hpp
     3d/obj3d.hpp
     3d/mesh.hpp
