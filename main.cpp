@@ -1,14 +1,17 @@
 #include <cstdio>
 
+#include "naive.hpp"
+/*
 #include "SDL2/SDL.h"
 
 #include "video.hpp"
 #include "screen.hpp"
 #include "palette.hpp"
 #include "texture.hpp"
-#include "textureloader.hpp"
+*/
 #include "3d/mesh.hpp"
 #include "3d/objloader.hpp"
+#include "textureloader.hpp"
 
 void testBlit(Video &video, Texture &texture, int mipLevel);
 
