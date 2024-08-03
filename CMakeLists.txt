@@ -7,8 +7,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 set(NAIVE_SOURCES
-    naive.hpp
-
     naive_defs.cpp
     video.cpp
     screen.cpp
@@ -22,6 +20,10 @@ set(NAIVE_SOURCES
     3d/scenenode.cpp
     3d/objloader.cpp
     3d/mesh.cpp
+)
+
+set(NAIVE_HEADERS
+    naive.hpp
 
     naive_defs.hpp
     video.hpp
@@ -38,13 +40,9 @@ set(NAIVE_SOURCES
     3d/objloader.hpp
     3d/obj3d.hpp
     3d/mesh.hpp
-
-    libs/tiny_obj_loader.h
 )
 
-add_library(naive
-    ${NAIVE_SOURCES}
-)
+add_library(naive STATIC)
 
 add_executable(naive_test
     main.cpp
@@ -63,6 +61,13 @@ target_include_directories(naive PRIVATE .)
 target_include_directories(naive PRIVATE 3d)
 target_include_directories(naive PRIVATE libs)
 
+target_sources(naive
+    PRIVATE ${NAIVE_SOURCES}
+    PUBLIC FILE_SET HEADERS
+        BASE_DIRS ${PROJECT_SOURCE_DIR}
+        FILES ${NAIVE_HEADERS}
+)
+
 string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES) # fixes bug with trailing whitespace in some SDL2 versions
 target_link_libraries(naive glm::glm)
 target_link_libraries(naive ${SDL2_LIBRARIES})
@@ -74,5 +79,12 @@ file(COPY "data" DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${SDL2_DLL} DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${SDL2_IMAGE_DLL} DESTINATION ${CMAKE_BINARY_DIR})
 
+# Copy header files to the output directory
+#file(COPY)
+
 target_include_directories(naive_test PRIVATE .)
 target_link_libraries(naive_test naive)
+
+# install typically puts files to a shared location, outside the project tree
+#install(TARGETS naive)
+install(TARGETS naive FILE_SET HEADERS)
