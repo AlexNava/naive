@@ -63,7 +63,7 @@ target_include_directories(naive PRIVATE libs)
 
 target_sources(naive
     PRIVATE ${NAIVE_SOURCES}
-    PUBLIC FILE_SET HEADERS
+    PUBLIC FILE_SET HEADERS # reserved name: target_sources File set TYPE may only be "HEADERS" or "CXX_MODULES"
         BASE_DIRS ${PROJECT_SOURCE_DIR}
         FILES ${NAIVE_HEADERS}
 )
@@ -86,5 +86,4 @@ target_include_directories(naive_test PRIVATE .)
 target_link_libraries(naive_test naive)
 
 # install typically puts files to a shared location, outside the project tree
-#install(TARGETS naive)
 install(TARGETS naive FILE_SET HEADERS)
