@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 set(NAIVE_SOURCES
     naive_defs.cpp
+    events.cpp
     video.cpp
     screen.cpp
     viewport.cpp
@@ -26,6 +27,7 @@ set(NAIVE_HEADERS
     naive.hpp
 
     naive_defs.hpp
+    events.hpp
     video.hpp
     screen.hpp
     viewport.hpp

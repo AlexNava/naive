@@ -95,20 +95,7 @@ void Video::present()
     if (!m_pVgaSurface)
         return;
 
-
-    SDL_Event evt;
-    while (SDL_PollEvent(&evt))
-    {
-        if (evt.type == SDL_QUIT)
-        {
-            exit(0);
-        }
-    }
-
-    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
-
-
-    SDL_ClearError();
+    //SDL_ClearError();
     SDL_BlitSurface(m_pVgaSurface, NULL, m_pRgbSurface, NULL); // with format conversion
 
     SDL_LockTexture(m_pSdlTexture, NULL, &texturePixels, &texturePitch);

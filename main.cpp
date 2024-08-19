@@ -36,8 +36,10 @@ int main(int argc, char **argv)
     int mipDir = 1;
     int cnt = 0;
     time = SDL_GetTicks();
-    while(true)
+    while(!Events::getInstance().isQuitRequested())
     {
+        Events::getInstance().poll();
+
         for (int i = 0; i < 1; ++i)
             testBlit(videoMgr, *pTex, mip);
         videoMgr.present();
