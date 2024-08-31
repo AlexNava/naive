@@ -17,6 +17,7 @@ set(NAIVE_SOURCES
     palette.cpp
 
     3d/renderer.cpp
+    3d/rasterizer.cpp
     3d/scene.cpp
     3d/scenenode.cpp
     3d/objloader.cpp
@@ -37,6 +38,7 @@ set(NAIVE_HEADERS
 
     2d/screen_ops.hpp
     3d/renderer.hpp
+    3d/rasterizer.hpp
     3d/scene.hpp
     3d/scenenode.hpp
     3d/objloader.hpp

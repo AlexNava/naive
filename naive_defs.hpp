@@ -29,7 +29,7 @@ namespace materialFlags
     const matFlags_t METAL_REFLECTION = 1 << 4; // use multiplicative spheremap (not yet)
 }
 
-namespace renderFlags
+namespace sortFlags
 {
     const rendFlags_t BACKGROUND       = 1 << 0; // always render first
     const rendFlags_t FOREGROUND       = 1 << 1; // always render last
