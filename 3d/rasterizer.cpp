@@ -19,7 +19,7 @@ Rasterizer::Rasterizer()
         tempWkData->pStartMutex->lock();
         tempWkData->pEndMutex = new std::mutex();
         tempWkData->pEndMutex->lock();
-        tempWkData->pThread = new std::thread((void *)scanlineWorker, tempWkData);
+        tempWkData->pThread = new std::thread(scanlineWorker, tempWkData);
         m_threadPtrs.push_back(tempWkData);
     }
 
@@ -52,7 +52,7 @@ void Rasterizer::setPTexture(Texture *newPTexture)
 
 void Rasterizer::startDrawingScanlines()
 {
-    for (int i = 0; i < m_threadPtrs.size(); ++i)
+    for (unsigned int i = 0; i < m_threadPtrs.size(); ++i)
     {
         m_threadPtrs.at(i)->pStartMutex->unlock();
     }
@@ -60,7 +60,7 @@ void Rasterizer::startDrawingScanlines()
 
 void Rasterizer::waitScanlines()
 {
-    for (int i = 0; i < m_threadPtrs.size(); ++i)
+    for (unsigned int i = 0; i < m_threadPtrs.size(); ++i)
     {
         m_threadPtrs.at(i)->pEndMutex->lock();
     }
@@ -68,7 +68,7 @@ void Rasterizer::waitScanlines()
 
 void Rasterizer::stopAllWorkers()
 {
-    for (int i = 0; i < m_threadPtrs.size(); ++i)
+    for (unsigned int i = 0; i < m_threadPtrs.size(); ++i)
     {
         m_threadPtrs.at(i)->stopRequested = true;
         m_threadPtrs.at(i)->pStartMutex->unlock();
@@ -76,24 +76,23 @@ void Rasterizer::stopAllWorkers()
     }
 }
 
-void scanlineWorker(void *pWkData)
+void scanlineWorker(WorkerData *pWkData)
 {
-    WorkerData *pData = (WorkerData*) pWkData;
-    Rasterizer *pRasterizer = pData->pRasterizer;
+    Rasterizer *pRasterizer = pWkData->pRasterizer;
     uint16_t scanline = 0;
 
     while (true)
     {
-        pData->pStartMutex->lock();
+        pWkData->pStartMutex->lock();
 
-        if (pData->stopRequested)
+        if (pWkData->stopRequested)
             break;
 
-        for (scanline = pData->firtLine; scanline <= pData->lastLine; ++scanline)
+        for (scanline = pWkData->firtLine; scanline <= pWkData->lastLine; ++scanline)
         {
             // draw scanlines
         }
 
-        pData->pEndMutex->unlock();
+        pWkData->pEndMutex->unlock();
     }
 }

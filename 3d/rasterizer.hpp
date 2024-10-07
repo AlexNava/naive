@@ -62,6 +62,6 @@ private:
     void stopAllWorkers();
 };
 
-void scanlineWorker(void *);
+void scanlineWorker(WorkerData *);
 
 #endif // RASTERIZER_HPP

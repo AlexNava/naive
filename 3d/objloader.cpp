@@ -28,7 +28,7 @@ Mesh *ObjLoader::loadMesh(std::string fileName)
     {
         std::vector<glm::vec3> vertices;
         auto xyzData = attributes.GetVertices();
-        for (int iVert = 0; iVert <= xyzData.size() - 3; iVert += 3)
+        for (unsigned int iVert = 0; iVert <= xyzData.size() - 3; iVert += 3)
         {
             glm::vec3 vert;
             vert.x = xyzData.at(iVert);
