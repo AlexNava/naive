@@ -8,6 +8,8 @@ typedef uint8_t light_t;
 typedef uint8_t alpha_t;
 typedef uint16_t matFlags_t;
 typedef uint16_t rendFlags_t;
+typedef int32_t rendCoord_t;
+typedef float rendDepth_t;
 
 namespace constants
 {
