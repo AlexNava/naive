@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     TextureLoader::getInstance().loadPaletteFromFile("data/awesome-lion-1024.pcx");
 
     uint32_t time = SDL_GetTicks();
-    Palette::getInstance().computeLookupTables();
+    //Palette::getInstance().computeLookupTables();
     time = SDL_GetTicks() - time;
     printf ("lookup tables computed in %d ms\n", time);
 
@@ -34,14 +34,29 @@ int main(int argc, char **argv)
     SDL_Delay(1000);
     int mip = 0;
     int mipDir = 1;
+
+    Rasterizer *pRasterizer = new Rasterizer();
+    pRasterizer->setPTargetScreen(videoMgr.pVgaScreen());
+    pRasterizer->setPTexture(pTex);
+
+    RasterVertex a, b, c;
+
     int cnt = 0;
     time = SDL_GetTicks();
     while(!Events::getInstance().isQuitRequested())
     {
         Events::getInstance().poll();
 
-        for (int i = 0; i < 1; ++i)
-            testBlit(videoMgr, *pTex, mip);
+        //testBlit(videoMgr, *pTex, mip);
+        testBlit(videoMgr, *pTex, 0);
+        a.x = 320;
+        a.y = 20;
+        b.x = 540;
+        b.y = 460;
+        c.x = 100;
+        c.y = 460;
+        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+
         videoMgr.present();
         mip += mipDir;
         if (mip <= 0 || mip >= pTex->mipNumber())

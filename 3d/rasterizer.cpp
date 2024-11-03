@@ -4,10 +4,10 @@
 #include "texture.hpp"
 
 static const int FP_SHIFT = 10;
+static const int MAX_RASTER_THREADS = 32;
 
 Rasterizer::Rasterizer()
 {
-    const int MAX_RASTER_THREADS = 4;
 
     m_subpixelEdges = false;
 
@@ -24,6 +24,7 @@ Rasterizer::Rasterizer()
         tempWkData->pEndMutex = new std::mutex();
         tempWkData->pEndMutex->lock();
         tempWkData->pThread = new std::thread(scanlineWorker, tempWkData);
+        tempWkData->workerNumber = i + 1;
         m_threadPtrs.push_back(tempWkData);
     }
 
@@ -33,6 +34,12 @@ Rasterizer::~Rasterizer()
 {
     // join threads
     stopAllWorkers();
+
+    // delete allocated structs
+    for (int i = 0; i < MAX_RASTER_THREADS; ++i)
+    {
+        delete m_threadPtrs.at(i);
+    }
 }
 
 void Rasterizer::setPTargetScreen(Screen *newPTargetScreen)
@@ -74,6 +81,41 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
     }
 
     // setup workers data, try to balance load
+    int minY = a->y;
+    int maxY = minY;
+
+    if (b->y < minY)
+        minY = b->y;
+    if (b->y > maxY)
+        maxY = b->y;
+    if (c->y < minY)
+        minY = c->y;
+    if (c->y > maxY)
+        maxY = c->y;
+    if (minY < m_pTargetScreen->viewport().y())
+        minY = m_pTargetScreen->viewport().y();
+    if (maxY >= m_pTargetScreen->viewport().y() + m_pTargetScreen->viewport().h())
+        maxY = m_pTargetScreen->viewport().y() + m_pTargetScreen->viewport().h() - 1;
+
+    // not optimal, simply divide y span by number of threads
+    for (int i = 0; i < MAX_RASTER_THREADS; ++i)
+    {
+        if (i == 0)
+        {
+            m_threadPtrs[i]->firstLine = minY;
+            m_threadPtrs[i]->lastLine = minY + (maxY - minY) / MAX_RASTER_THREADS;
+        }
+        else if (i == MAX_RASTER_THREADS - 1)
+        {
+            m_threadPtrs[i]->firstLine = m_threadPtrs[i - 1]->lastLine + 1;
+            m_threadPtrs[i]->lastLine = maxY;
+        }
+        else
+        {
+            m_threadPtrs[i]->firstLine = m_threadPtrs[i - 1]->lastLine + 1;
+            m_threadPtrs[i]->lastLine = minY + (maxY - minY) * i / MAX_RASTER_THREADS;
+        }
+    }
 
     // draw scanlines in parallel
     startDrawingScanlines();
@@ -156,6 +198,16 @@ void Rasterizer::setPTexture(Texture *newPTexture)
     m_pTexture = newPTexture;
 }
 
+std::vector<ScanlineEnd> Rasterizer::leftEdge() const
+{
+    return m_leftEdge;
+}
+
+std::vector<ScanlineEnd> Rasterizer::rightEdge() const
+{
+    return m_rightEdge;
+}
+
 void Rasterizer::startDrawingScanlines()
 {
     for (unsigned int i = 0; i < m_threadPtrs.size(); ++i)
@@ -197,6 +249,10 @@ void scanlineWorker(WorkerData *pWkData)
         for (scanline = pWkData->firstLine; scanline <= pWkData->lastLine; ++scanline)
         {
             // draw scanlines
+            for (int x = pRasterizer->leftEdge().at(scanline).x; x < pRasterizer->rightEdge().at(scanline).x; ++x)
+            {
+                pRasterizer->pTargetScreen()->putPixel(x, scanline, 60 + pWkData->workerNumber);
+            }
         }
 
         pWkData->pEndMutex->unlock();

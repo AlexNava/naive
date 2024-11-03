@@ -7,5 +7,6 @@
 #include "palette.hpp"
 #include "screen.hpp"
 #include "texture.hpp"
+#include "3d/rasterizer.hpp"
 
 #endif

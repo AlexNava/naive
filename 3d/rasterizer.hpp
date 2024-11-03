@@ -38,6 +38,7 @@ struct WorkerData
     std::mutex  *pStartMutex;  // released by caller, locked by worker
     std::mutex  *pEndMutex;    // released by worker, locked by caller
     bool         stopRequested;
+    uint8_t      workerNumber;
 };
 
 class Rasterizer
@@ -53,6 +54,9 @@ public:
     Screen *pTargetScreen() const;
     void setPTexture(Texture *newPTexture);
 
+    std::vector<ScanlineEnd> leftEdge() const;
+    std::vector<ScanlineEnd> rightEdge() const;
+
 private:
     Screen *m_pTargetScreen;
     Texture *m_pTexture;
@@ -63,6 +67,7 @@ private:
     // @todo make screen and texture classes related?
     //   alternative: function to copy rects for render to texture
 
+    // @todo: make sure this is optimal, having class members shared to the workers with getters
     std::vector<ScanlineEnd> m_leftEdge;
     std::vector<ScanlineEnd> m_rightEdge;
 
