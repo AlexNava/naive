@@ -48,15 +48,17 @@ int main(int argc, char **argv)
         Events::getInstance().poll();
 
         //testBlit(videoMgr, *pTex, mip);
-        testBlit(videoMgr, *pTex, 0);
-        a.x = 320;
-        a.y = 20;
-        b.x = 540;
-        b.y = 460;
-        c.x = 100;
-        c.y = 460;
-        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
-
+        //testBlit(videoMgr, *pTex, 0);
+        for (int i = -10; i <= 10; ++i)
+        {
+            a.x = 320 + i * 5;
+            a.y = 20 + i * 2;
+            b.x = 540 + i * 5;
+            b.y = 460 + i * 2;
+            c.x = 100 + i * 5;
+            c.y = 460 + i * 2;
+            pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+        }
         videoMgr.present();
         mip += mipDir;
         if (mip <= 0 || mip >= pTex->mipNumber())

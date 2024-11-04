@@ -4,11 +4,12 @@
 #include "texture.hpp"
 
 static const int FP_SHIFT = 10;
-static const int MAX_RASTER_THREADS = 32;
+static const int MAX_RASTER_THREADS = 10;
 
 Rasterizer::Rasterizer()
 {
-
+    m_pLeftEdge = nullptr;
+    m_pRightEdge = nullptr;
     m_subpixelEdges = false;
 
     // create threads
@@ -40,16 +41,26 @@ Rasterizer::~Rasterizer()
     {
         delete m_threadPtrs.at(i);
     }
+
+    delete[] m_pLeftEdge;
+    delete[] m_pRightEdge;
+
 }
 
 void Rasterizer::setPTargetScreen(Screen *newPTargetScreen)
 {
     m_pTargetScreen = newPTargetScreen;
-    if (m_pTargetScreen && m_pTargetScreen->height() > m_leftEdge.size())
-    {
-        m_leftEdge.resize(m_pTargetScreen->height());
-        m_rightEdge.resize(m_pTargetScreen->height());
-    }
+
+    delete[] m_pLeftEdge;
+    delete[] m_pRightEdge;
+    m_pLeftEdge = new ScanlineEnd[m_pTargetScreen->height()];
+    m_pRightEdge = new ScanlineEnd[m_pTargetScreen->height()];
+
+    //if (m_pTargetScreen && m_pTargetScreen->height() > m_leftEdge.size())
+    //{
+    //    m_leftEdge.resize(m_pTargetScreen->height());
+    //    m_rightEdge.resize(m_pTargetScreen->height());
+    //}
 }
 
 void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t flatColor, matFlags_t flags)
@@ -113,7 +124,7 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
         else
         {
             m_threadPtrs[i]->firstLine = m_threadPtrs[i - 1]->lastLine + 1;
-            m_threadPtrs[i]->lastLine = minY + (maxY - minY) * i / MAX_RASTER_THREADS;
+            m_threadPtrs[i]->lastLine = minY + (maxY - minY) * (i + 1) / MAX_RASTER_THREADS;
         }
     }
 
@@ -130,15 +141,15 @@ void Rasterizer::calcScanlines(RasterVertex *a, RasterVertex *b, bool interpLigh
 
     if (b->y > a->y)
     {
-        calcEdge(a, b, interpLight, interpUv, m_rightEdge);
+        calcEdge(a, b, interpLight, interpUv, m_pRightEdge);
     }
     else if (b->y < a->y)
     {
-        calcEdge(b, a, interpLight, interpUv, m_leftEdge);
+        calcEdge(b, a, interpLight, interpUv, m_pLeftEdge);
     }
 }
 
-void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv, std::vector<ScanlineEnd> &edge)
+void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv, ScanlineEnd *edge)
 {
     bool clearEdge = false;
     int32_t startLine = a->y;
@@ -198,16 +209,6 @@ void Rasterizer::setPTexture(Texture *newPTexture)
     m_pTexture = newPTexture;
 }
 
-std::vector<ScanlineEnd> Rasterizer::leftEdge() const
-{
-    return m_leftEdge;
-}
-
-std::vector<ScanlineEnd> Rasterizer::rightEdge() const
-{
-    return m_rightEdge;
-}
-
 void Rasterizer::startDrawingScanlines()
 {
     for (unsigned int i = 0; i < m_threadPtrs.size(); ++i)
@@ -249,7 +250,7 @@ void scanlineWorker(WorkerData *pWkData)
         for (scanline = pWkData->firstLine; scanline <= pWkData->lastLine; ++scanline)
         {
             // draw scanlines
-            for (int x = pRasterizer->leftEdge().at(scanline).x; x < pRasterizer->rightEdge().at(scanline).x; ++x)
+            for (int x = pRasterizer->m_pLeftEdge[scanline].x; x < pRasterizer->m_pRightEdge[scanline].x; ++x)
             {
                 pRasterizer->pTargetScreen()->putPixel(x, scanline, 60 + pWkData->workerNumber);
             }

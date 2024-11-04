@@ -54,8 +54,9 @@ public:
     Screen *pTargetScreen() const;
     void setPTexture(Texture *newPTexture);
 
-    std::vector<ScanlineEnd> leftEdge() const;
-    std::vector<ScanlineEnd> rightEdge() const;
+    // @todo: make sure this is optimal, having class members shared to the workers with getters
+    ScanlineEnd *m_pLeftEdge;
+    ScanlineEnd *m_pRightEdge;
 
 private:
     Screen *m_pTargetScreen;
@@ -67,12 +68,9 @@ private:
     // @todo make screen and texture classes related?
     //   alternative: function to copy rects for render to texture
 
-    // @todo: make sure this is optimal, having class members shared to the workers with getters
-    std::vector<ScanlineEnd> m_leftEdge;
-    std::vector<ScanlineEnd> m_rightEdge;
 
     void calcScanlines(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv);
-    void calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv, std::vector<ScanlineEnd> &edge);
+    void calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv, ScanlineEnd *edge);
 
     // settable render flags
     bool m_subpixelEdges; // ignored
