@@ -1,5 +1,5 @@
 #include <cstdio>
-
+#include <cmath>
 #include "naive.hpp"
 /*
 #include "SDL2/SDL.h"
@@ -17,11 +17,15 @@ void testBlit(Video &video, Texture &texture, int mipLevel);
 
 int main(int argc, char **argv)
 {
+    const int scrW = 640;
+    const int scrH = 480;
+
     Mesh *pA112 = ObjLoader::getInstance().loadMesh("data/a112_cleaned.obj");
 
     TextureLoader::getInstance().loadPaletteFromFile("data/awesome-lion-1024.pcx");
 
     uint32_t time = SDL_GetTicks();
+    uint32_t currTime;
     //Palette::getInstance().computeLookupTables();
     time = SDL_GetTicks() - time;
     printf ("lookup tables computed in %d ms\n", time);
@@ -30,7 +34,7 @@ int main(int argc, char **argv)
 
     Video videoMgr;
     videoMgr.setWindowedScale(1);
-    videoMgr.setInternalResolution(640, 480);
+    videoMgr.setInternalResolution(scrW, scrH);
     SDL_Delay(1000);
     int mip = 0;
     int mipDir = 1;
@@ -45,19 +49,23 @@ int main(int argc, char **argv)
     time = SDL_GetTicks();
     while(!Events::getInstance().isQuitRequested())
     {
-        Events::getInstance().poll();
+        Events::getInstance().poll(); 
+        currTime = SDL_GetTicks();
 
         //testBlit(videoMgr, *pTex, mip);
-        //testBlit(videoMgr, *pTex, 0);
-        for (int i = -10; i <= 10; ++i)
+        testBlit(videoMgr, *pTex, 0);
+        for (int y = -200; y <= 200; y += 20)
         {
-            a.x = 320 + i * 5;
-            a.y = 20 + i * 2;
-            b.x = 540 + i * 5;
-            b.y = 460 + i * 2;
-            c.x = 100 + i * 5;
-            c.y = 460 + i * 2;
+        for (int i = -200; i <= 200; i += 20)
+        {
+            a.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000);
+            a.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000);
+            b.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+            b.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+            c.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+            c.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000 + M_PI * 4.0 / 3.0);
             pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+        }
         }
         videoMgr.present();
         mip += mipDir;

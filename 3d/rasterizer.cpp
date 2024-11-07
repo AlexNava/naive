@@ -4,7 +4,7 @@
 #include "texture.hpp"
 
 static const int FP_SHIFT = 10;
-static const int MAX_RASTER_THREADS = 10;
+static const int MAX_RASTER_THREADS = 4;
 
 Rasterizer::Rasterizer()
 {
