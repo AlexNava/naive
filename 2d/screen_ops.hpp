@@ -2,7 +2,7 @@
 #define SCREEN_OPS_H
 
 #include "screen.hpp"
-#include <memory>
+#include <cstring>
 
 namespace screenOps
 {
@@ -10,7 +10,7 @@ namespace screenOps
     {
         if (source.width() == dest.width() && source.height() == dest.height())
         {
-            memcpy(dest.pBuffer(), source.pBuffer(), source.height() * source.width() * sizeof(col_t));
+            std::memcpy(dest.pBuffer(), source.pBuffer(), source.height() * source.width() * sizeof(col_t));
         }
     }
 
@@ -19,7 +19,10 @@ namespace screenOps
 
     }
 
-
+    void clearScreen(Screen *dest, col_t col)
+    {
+        std::memset(dest->pBuffer(), col, dest->height() * dest->width() * sizeof(col_t));
+    }
 }
 
 #endif

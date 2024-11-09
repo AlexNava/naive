@@ -53,19 +53,21 @@ int main(int argc, char **argv)
         currTime = SDL_GetTicks();
 
         //testBlit(videoMgr, *pTex, mip);
-        testBlit(videoMgr, *pTex, 0);
-        for (int y = -200; y <= 200; y += 20)
+        //testBlit(videoMgr, *pTex, 0);
+        screenOps::clearScreen(videoMgr.pVgaScreen(), 5);
+
+        for (int y = -200; y <= 200; y += 100)
         {
-        for (int i = -200; i <= 200; i += 20)
-        {
-            a.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000);
-            a.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000);
-            b.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000 + M_PI * 2.0 / 3.0);
-            b.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000 + M_PI * 2.0 / 3.0);
-            c.x = i + scrW / 2 + 50 * cos((currTime + i) * M_PI / 2000 + M_PI * 4.0 / 3.0);
-            c.y = y + scrH / 2 + 50 * sin((currTime + i) * M_PI / 2000 + M_PI * 4.0 / 3.0);
-            pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
-        }
+            for (int x = -250; x <= 250; x += 100)
+            {
+                a.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000);
+                a.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000);
+                b.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+                b.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+                c.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+                c.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+                pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+            }
         }
         videoMgr.present();
         mip += mipDir;
