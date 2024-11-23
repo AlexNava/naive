@@ -33,6 +33,8 @@ struct WorkerData
 {
     std::thread *pThread;
     Rasterizer  *pRasterizer;
+    ScanlineEnd *pLeftEdge;
+    ScanlineEnd *pRightEdge;
     uint16_t     firstLine;
     uint16_t     lastLine;
     std::mutex  *pStartMutex;  // released by caller, locked by worker
@@ -54,10 +56,6 @@ public:
     Screen *pTargetScreen() const;
     void setPTexture(Texture *newPTexture);
 
-    // @todo: make sure this is optimal, having class members shared to the workers with getters
-    ScanlineEnd *m_pLeftEdge;
-    ScanlineEnd *m_pRightEdge;
-
 private:
     Screen *m_pTargetScreen;
     Texture *m_pTexture;
@@ -68,6 +66,9 @@ private:
     // @todo make screen and texture classes related?
     //   alternative: function to copy rects for render to texture
 
+    ScanlineEnd *m_pLeftEdge;
+    ScanlineEnd *m_pRightEdge;
+    int m_allocatedScanlines;
 
     void calcScanlines(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv);
     void calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bool interpUv, ScanlineEnd *edge);

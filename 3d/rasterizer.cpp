@@ -1,15 +1,20 @@
 #include <cmath>
+#include <cstdio>
+
 #include "rasterizer.hpp"
 #include "screen.hpp"
 #include "texture.hpp"
 
 static const int FP_SHIFT = 10;
-static const int MAX_RASTER_THREADS = 4;
+static const int MAX_RASTER_THREADS = 2;
 
 Rasterizer::Rasterizer()
 {
-    m_pLeftEdge = nullptr;
-    m_pRightEdge = nullptr;
+    m_pLeftEdge = new ScanlineEnd[1000];
+    m_pRightEdge = new ScanlineEnd[1000];
+    m_allocatedScanlines = 1000;
+    m_pTargetScreen = nullptr;
+
     m_subpixelEdges = false;
 
     // create threads
@@ -20,6 +25,8 @@ Rasterizer::Rasterizer()
         tempWkData->pRasterizer = this;
         tempWkData->firstLine = 0;
         tempWkData->lastLine = 0;
+        tempWkData->pLeftEdge = m_pLeftEdge;
+        tempWkData->pRightEdge = m_pRightEdge;
         tempWkData->pStartMutex = new std::mutex();
         tempWkData->pStartMutex->lock();
         tempWkData->pEndMutex = new std::mutex();
@@ -50,17 +57,6 @@ Rasterizer::~Rasterizer()
 void Rasterizer::setPTargetScreen(Screen *newPTargetScreen)
 {
     m_pTargetScreen = newPTargetScreen;
-
-    delete[] m_pLeftEdge;
-    delete[] m_pRightEdge;
-    m_pLeftEdge = new ScanlineEnd[m_pTargetScreen->height()];
-    m_pRightEdge = new ScanlineEnd[m_pTargetScreen->height()];
-
-    //if (m_pTargetScreen && m_pTargetScreen->height() > m_leftEdge.size())
-    //{
-    //    m_leftEdge.resize(m_pTargetScreen->height());
-    //    m_rightEdge.resize(m_pTargetScreen->height());
-    //}
 }
 
 void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t flatColor, matFlags_t flags)
@@ -79,6 +75,23 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
         flatColor = m_pTexture->getTexel(a->u, a->v);
     }
 
+//    printf("    starting calc scanlines. vertices: a %d, %d; b %d, %d; c %d, %d\n",
+//           a->x, a->y, b->x, b->y, c->x, c->y);
+
+    if (m_pTargetScreen->height() > m_allocatedScanlines)
+    {
+        m_allocatedScanlines = m_pTargetScreen->height();
+        delete[] m_pLeftEdge;
+        delete[] m_pRightEdge;
+        m_pLeftEdge = new ScanlineEnd[m_allocatedScanlines];
+        m_pRightEdge = new ScanlineEnd[m_allocatedScanlines];
+        for (int i = 0; i < MAX_RASTER_THREADS; ++i)
+        {
+            m_threadPtrs[i]->pLeftEdge = m_pLeftEdge;
+            m_threadPtrs[i]->pRightEdge = m_pRightEdge;
+        }
+    }
+
     // calculate edges
     if (m_subpixelEdges)
     {
@@ -91,6 +104,7 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
         calcScanlines(c, a, !flatShading, textured);
     }
 
+//    printf("    starting load balance\n");
     // setup workers data, try to balance load
     int minY = a->y;
     int maxY = minY;
@@ -127,6 +141,13 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
             m_threadPtrs[i]->lastLine = minY + (maxY - minY) * (i + 1) / MAX_RASTER_THREADS;
         }
     }
+
+//    printf("   workers setup. lines: ");
+//    for (int i = 0; i < m_threadPtrs.size(); ++i)
+//    {
+//        printf("%d -> %d ; ", m_threadPtrs[i]->firstLine, m_threadPtrs[i]->lastLine);
+//    }
+//    printf("\n");
 
     // draw scanlines in parallel
     startDrawingScanlines();
@@ -240,21 +261,29 @@ void scanlineWorker(WorkerData *pWkData)
     Rasterizer *pRasterizer = pWkData->pRasterizer;
     uint16_t scanline = 0;
 
+    printf("worker %d created\n", pWkData->workerNumber);
+
     while (true)
     {
+
         pWkData->pStartMutex->lock();
+
+//        printf("worker %d start obtained. lines %d to %d\n", pWkData->workerNumber, pWkData->firstLine, pWkData->lastLine);
 
         if (pWkData->stopRequested)
             break;
 
-        for (scanline = pWkData->firstLine; scanline <= pWkData->lastLine; ++scanline)
-        {
-            // draw scanlines
-            for (int x = pRasterizer->m_pLeftEdge[scanline].x; x < pRasterizer->m_pRightEdge[scanline].x; ++x)
+        if (pRasterizer->pTargetScreen() && pWkData->pLeftEdge && pWkData->pRightEdge)
+            for (scanline = pWkData->firstLine; scanline <= pWkData->lastLine; ++scanline)
             {
-                pRasterizer->pTargetScreen()->putPixel(x, scanline, 60 + pWkData->workerNumber);
+                // draw scanlines
+                for (int x = pWkData->pLeftEdge[scanline].x; x < pWkData->pRightEdge[scanline].x; ++x)
+                {
+                    pRasterizer->pTargetScreen()->putPixel(x, scanline, 60 + pWkData->workerNumber);
+                }
             }
-        }
+
+//        printf("worker %d signaling done\n", pWkData->workerNumber);
 
         pWkData->pEndMutex->unlock();
     }
