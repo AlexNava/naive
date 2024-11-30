@@ -177,26 +177,22 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     int32_t endLine = b->y;
     int32_t deltaX = b->x - a->x;
     int32_t deltaY = b->y - a->y; // always positive
-    uint32_t xSlope = std::abs(deltaX);
+    int32_t xSlope = deltaX << FP_SHIFT;
     int32_t x = a->x << FP_SHIFT;
 
-    if (xSlope >= (1 << (32 - FP_SHIFT)))
+    if (xSlope * deltaX < 0) // sign changed by  shift
     {
         clearEdge = true;
         xSlope = 0;
     }
     else
     {
-        xSlope = xSlope << FP_SHIFT;
         xSlope = xSlope / deltaY;
     }
 
     if (a->y < 0)
     {
-        if (deltaX >= 0)
-            x += xSlope * (- a->y);
-        else
-            x -= xSlope * (- a->y);
+        x += xSlope * (- a->y);
         startLine = 0;
     }
 
@@ -209,10 +205,7 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     {
         // set edge
         edge[i].x = x >> FP_SHIFT;
-        if (deltaX >= 0)
-            x += xSlope;
-        else
-            x -= xSlope;
+        x += xSlope;
 
         // interp light
 
