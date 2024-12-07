@@ -5,7 +5,7 @@
 #include "screen.hpp"
 #include "texture.hpp"
 
-static const int FP_SHIFT = 10;
+static const int FP_SHIFT = 8;
 static const int MAX_RASTER_THREADS = 2;
 
 Rasterizer::Rasterizer()
@@ -57,6 +57,20 @@ Rasterizer::~Rasterizer()
 void Rasterizer::setPTargetScreen(Screen *newPTargetScreen)
 {
     m_pTargetScreen = newPTargetScreen;
+
+    if (m_pTargetScreen && m_pTargetScreen->height() > m_allocatedScanlines)
+    {
+        m_allocatedScanlines = m_pTargetScreen->height();
+        delete[] m_pLeftEdge;
+        delete[] m_pRightEdge;
+        m_pLeftEdge = new ScanlineEnd[m_allocatedScanlines];
+        m_pRightEdge = new ScanlineEnd[m_allocatedScanlines];
+        for (int i = 0; i < MAX_RASTER_THREADS; ++i)
+        {
+            m_threadPtrs[i]->pLeftEdge = m_pLeftEdge;
+            m_threadPtrs[i]->pRightEdge = m_pRightEdge;
+        }
+    }
 }
 
 void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t flatColor, matFlags_t flags)
@@ -77,20 +91,6 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
 
 //    printf("    starting calc scanlines. vertices: a %d, %d; b %d, %d; c %d, %d\n",
 //           a->x, a->y, b->x, b->y, c->x, c->y);
-
-    if (m_pTargetScreen->height() > m_allocatedScanlines)
-    {
-        m_allocatedScanlines = m_pTargetScreen->height();
-        delete[] m_pLeftEdge;
-        delete[] m_pRightEdge;
-        m_pLeftEdge = new ScanlineEnd[m_allocatedScanlines];
-        m_pRightEdge = new ScanlineEnd[m_allocatedScanlines];
-        for (int i = 0; i < MAX_RASTER_THREADS; ++i)
-        {
-            m_threadPtrs[i]->pLeftEdge = m_pLeftEdge;
-            m_threadPtrs[i]->pRightEdge = m_pRightEdge;
-        }
-    }
 
     // calculate edges
     if (m_subpixelEdges)
