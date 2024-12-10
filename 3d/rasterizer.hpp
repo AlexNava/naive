@@ -23,8 +23,8 @@ struct RasterVertex
 struct ScanlineEnd
 {
     int32_t x;
-    uint16_t textureU;
-    uint16_t textureV;
+    int32_t textureU; // shifted
+    int32_t textureV; // shifted
     light_t luminance;
     uint8_t spare[3]; // alignment
 };
@@ -39,6 +39,7 @@ struct WorkerData
     uint16_t     lastLine;
     std::mutex  *pStartMutex;  // released by caller, locked by worker
     std::mutex  *pEndMutex;    // released by worker, locked by caller
+    Texture     *pTexture;
     bool         stopRequested;
     uint8_t      workerNumber;
 };

@@ -180,6 +180,11 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     int32_t xSlope = deltaX << FP_SHIFT;
     int32_t x = a->x << FP_SHIFT;
 
+    uint32_t u = a->u << FP_SHIFT;
+    uint32_t v = a->v << FP_SHIFT;
+    int32_t deltaU = ((int32_t)(b->u - a->u) << FP_SHIFT) / deltaY;
+    int32_t deltaV = ((int32_t)(b->v - a->v) << FP_SHIFT) / deltaY;
+
     if (xSlope * deltaX < 0) // sign changed by  shift
     {
         clearEdge = true;
@@ -193,6 +198,8 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     if (a->y < 0)
     {
         x += xSlope * (- a->y);
+        u += deltaU * (- a->y);
+        v += deltaV * (- a->y);
         startLine = 0;
     }
 
@@ -210,6 +217,10 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
         // interp light
 
         // interp uv
+        edge[i].textureU = u;
+        edge[i].textureV = v;
+        u += deltaU;
+        v += deltaV;
     }
 }
 
@@ -221,6 +232,10 @@ Screen *Rasterizer::pTargetScreen() const
 void Rasterizer::setPTexture(Texture *newPTexture)
 {
     m_pTexture = newPTexture;
+    for (int i = 0; i < m_threadPtrs.size(); ++i)
+    {
+        m_threadPtrs[i]->pTexture = m_pTexture;
+    }
 }
 
 void Rasterizer::startDrawingScanlines()
@@ -252,7 +267,11 @@ void Rasterizer::stopAllWorkers()
 void scanlineWorker(WorkerData *pWkData)
 {
     Rasterizer *pRasterizer = pWkData->pRasterizer;
-    uint16_t scanline = 0;
+    uint16_t line = 0;
+    int32_t u, v;
+    int32_t uStep, vStep;
+    int32_t span;
+    col_t pixel, bgPixel;
 
     printf("worker %d created\n", pWkData->workerNumber);
 
@@ -267,12 +286,24 @@ void scanlineWorker(WorkerData *pWkData)
             break;
 
         if (pRasterizer->pTargetScreen() && pWkData->pLeftEdge && pWkData->pRightEdge)
-            for (scanline = pWkData->firstLine; scanline <= pWkData->lastLine; ++scanline)
+            for (line = pWkData->firstLine; line <= pWkData->lastLine; ++line)
             {
                 // draw scanlines
-                for (int x = pWkData->pLeftEdge[scanline].x; x < pWkData->pRightEdge[scanline].x; ++x)
+                span = pWkData->pRightEdge[line].x - pWkData->pLeftEdge[line].x;
+                span += !span;
+
+                u = pWkData->pLeftEdge[line].textureU;
+                uStep = (pWkData->pRightEdge[line].textureU - u) / span;
+                v = pWkData->pLeftEdge[line].textureV;
+                vStep = (pWkData->pRightEdge[line].textureV - v) / span;
+
+                for (int x = pWkData->pLeftEdge[line].x; x < pWkData->pRightEdge[line].x; ++x)
                 {
-                    pRasterizer->pTargetScreen()->putPixel(x, scanline, 60 + pWkData->workerNumber);
+                    // sample u v >> FP_SHIFT
+                    pixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
+                    pRasterizer->pTargetScreen()->putPixel(x, line, pixel);
+                    u += uStep;
+                    v += vStep;
                 }
             }
 
