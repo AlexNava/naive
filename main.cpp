@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
     uint32_t time = SDL_GetTicks();
     uint32_t currTime;
-    //Palette::getInstance().computeLookupTables();
+    Palette::getInstance().computeLookupTables();
     time = SDL_GetTicks() - time;
     printf ("lookup tables computed in %d ms\n", time);
 
@@ -35,6 +35,7 @@ int main(int argc, char **argv)
     Video videoMgr;
     videoMgr.setWindowedScale(1);
     videoMgr.setInternalResolution(scrW, scrH);
+    //videoMgr.setFullscreen(true);
     SDL_Delay(1000);
     int mip = 0;
     int mipDir = 1;
@@ -54,11 +55,18 @@ int main(int argc, char **argv)
 
         //testBlit(videoMgr, *pTex, mip);
         //testBlit(videoMgr, *pTex, 0);
-        screenOps::clearScreen(videoMgr.pVgaScreen(), 5);
+        screenOps::clearScreen(videoMgr.pVgaScreen(), 6);
 
-        for (int y = -200; y <= 200; y += 100)
+        a.u = 511;
+        a.v = 0;
+        b.u = 1023;
+        b.v = 900;
+        c.u = 0;
+        c.v = 900;
+
+        for (int y = -200; y <= 200; y += 50)
         {
-            for (int x = -250; x <= 250; x += 100)
+            for (int x = -250; x <= 250; x += 50)
             {
                 a.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000);
                 a.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000);
@@ -66,9 +74,20 @@ int main(int argc, char **argv)
                 b.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 2.0 / 3.0);
                 c.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 c.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+                pTex->setMipLevel((x + y + 450) / 90);
                 pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
             }
         }
+
+        a.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000);
+        a.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000);
+        b.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+        b.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+        c.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+        c.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+        pTex->setMipLevel(0);
+        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+
         videoMgr.present();
         mip += mipDir;
         if (mip <= 0 || mip >= pTex->mipNumber())
