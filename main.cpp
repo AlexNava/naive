@@ -57,12 +57,12 @@ int main(int argc, char **argv)
         //testBlit(videoMgr, *pTex, 0);
         screenOps::clearScreen(videoMgr.pVgaScreen(), 6);
 
-        a.u = 511;
+        a.u = 1023;
         a.v = 0;
-        b.u = 1023;
-        b.v = 900;
+        b.u = 2047;
+        b.v = 1800;
         c.u = 0;
-        c.v = 900;
+        c.v = 1800;
 
         for (int y = -200; y <= 200; y += 50)
         {

@@ -7,6 +7,7 @@ Texture::Texture(uint16_t w, uint16_t h, TextureType texType)
     m_isValid = false;
     m_width = 0;
     m_height = 0;
+    m_uvMask = constants::TEXTURE_SPACE_SIZE - 1;
 
     if ((functions::isPowOf2(w) && functions::isPowOf2(h))
         && (w <= constants::TEXTURE_SPACE_SIZE) && (h <= constants::TEXTURE_SPACE_SIZE)

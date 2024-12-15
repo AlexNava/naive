@@ -16,7 +16,7 @@ namespace constants
     const uint16_t PALETTE_ENTRIES    = 256;
     const uint16_t ALPHA_LEVELS       = 16;
     const uint16_t LIGHT_LEVELS       = 64;
-    const uint16_t TEXTURE_SPACE_SIZE = 1024;
+    const uint16_t TEXTURE_SPACE_SIZE = 1024; // only powers of two, please :)
 }
 
 namespace materialFlags

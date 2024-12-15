@@ -25,7 +25,9 @@ public:
 
     inline col_t getTexel(uint16_t u, uint16_t v) const
     {
+        u &= m_uvMask;
         u >>= m_effUShift;
+        v &= m_uvMask;
         v >>= m_effVShift;
 
         return *(functions::accessArray(m_colorTexels[m_mipLevel], u, v, m_effWidth));
@@ -54,7 +56,7 @@ private:
 
     uint8_t uShift;
     uint8_t vShift;
-
+    uint16_t m_uvMask;
     uint8_t  m_effUShift;
     uint8_t  m_effVShift;
     uint16_t m_effWidth;
