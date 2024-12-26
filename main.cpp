@@ -57,12 +57,12 @@ int main(int argc, char **argv)
         //testBlit(videoMgr, *pTex, 0);
         screenOps::clearScreen(videoMgr.pVgaScreen(), 6);
 
-        a.u = 1023;
+        a.u = constants::TEXTURE_SPACE_SIZE * 0.5;
         a.v = 0;
-        b.u = 2047;
-        b.v = 1800;
+        b.u = constants::TEXTURE_SPACE_SIZE - 1;
+        b.v = constants::TEXTURE_SPACE_SIZE * 0.867;
         c.u = 0;
-        c.v = 1800;
+        c.v = constants::TEXTURE_SPACE_SIZE * 0.867;
 
         for (int y = -200; y <= 200; y += 50)
         {
@@ -81,10 +81,13 @@ int main(int argc, char **argv)
 
         a.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000);
         a.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000);
+        a.light = 0;
         b.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
         b.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
+        b.light = 127;
         c.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
+        c.light = 255;
         pTex->setMipLevel(0);
         pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
 

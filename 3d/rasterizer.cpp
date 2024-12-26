@@ -4,6 +4,7 @@
 #include "rasterizer.hpp"
 #include "screen.hpp"
 #include "texture.hpp"
+#include "palette.hpp"
 
 static const int FP_SHIFT = 8;
 static const int MAX_RASTER_THREADS = 2;
@@ -185,6 +186,9 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     int32_t deltaU = ((int32_t)(b->u - a->u) << FP_SHIFT) / deltaY;
     int32_t deltaV = ((int32_t)(b->v - a->v) << FP_SHIFT) / deltaY;
 
+    uint32_t light = a->light << FP_SHIFT;
+    int32_t deltaL = ((int32_t)(b->light - a->light) << FP_SHIFT) / deltaY;
+
     if (xSlope * deltaX < 0) // sign changed by  shift
     {
         clearEdge = true;
@@ -197,9 +201,10 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
 
     if (a->y < 0)
     {
-        x += xSlope * (- a->y);
-        u += deltaU * (- a->y);
-        v += deltaV * (- a->y);
+        x     += xSlope * (- a->y);
+        u     += deltaU * (- a->y);
+        v     += deltaV * (- a->y);
+        light += deltaL * (- a->y);
         startLine = 0;
     }
 
@@ -214,13 +219,15 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
         edge[i].x = x >> FP_SHIFT;
         x += xSlope;
 
-        // interp light
-
         // interp uv
         edge[i].textureU = u;
         edge[i].textureV = v;
         u += deltaU;
         v += deltaV;
+
+        // interp light
+        edge[i].luminance = light;
+        light += deltaL;
     }
 }
 
@@ -267,12 +274,16 @@ void Rasterizer::stopAllWorkers()
 void scanlineWorker(WorkerData *pWkData)
 {
     Rasterizer *pRasterizer = pWkData->pRasterizer;
+    Palette &palette = Palette::getInstance();
     uint16_t line = 0;
     int32_t u, v;
     int32_t uStep, vStep;
+    int32_t l;
+    int32_t lStep;
     int32_t span;
     col_t pixel, bgPixel;
-
+    light_t luminance;
+    int32_t lightSpaceShift = functions::getPowOf2(constants::LIGHT_SPACE_SIZE / constants::LIGHT_LEVELS);
     printf("worker %d created\n", pWkData->workerNumber);
 
     while (true)
@@ -297,13 +308,22 @@ void scanlineWorker(WorkerData *pWkData)
                 v = pWkData->pLeftEdge[line].textureV;
                 vStep = (pWkData->pRightEdge[line].textureV - v) / span;
 
+                l = pWkData->pLeftEdge[line].luminance;
+                lStep = (pWkData->pRightEdge[line].luminance - l) / span;
+
                 for (int x = pWkData->pLeftEdge[line].x; x < pWkData->pRightEdge[line].x; ++x)
                 {
                     // sample u v >> FP_SHIFT
                     pixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
-                    pRasterizer->pTargetScreen()->putPixel(x, line, pixel);
+                    luminance = l >> FP_SHIFT;
+
+                    pixel = palette.getLightedColor(pixel, luminance >> lightSpaceShift);
+
                     u += uStep;
                     v += vStep;
+                    l += lStep;
+
+                    pRasterizer->pTargetScreen()->putPixel(x, line, pixel);
                 }
             }
 

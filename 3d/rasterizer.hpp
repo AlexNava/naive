@@ -25,8 +25,8 @@ struct ScanlineEnd
     int32_t x;
     int32_t textureU; // shifted
     int32_t textureV; // shifted
-    light_t luminance;
-    uint8_t spare[3]; // alignment
+    int32_t luminance; // shifted
+    //uint8_t spare[3]; // alignment
 };
 
 struct WorkerData
