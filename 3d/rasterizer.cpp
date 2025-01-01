@@ -316,6 +316,7 @@ void scanlineWorker(WorkerData *pWkData)
                     // sample u v >> FP_SHIFT
                     pixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
                     luminance = l >> FP_SHIFT;
+                    luminance += functions::getDither(x, line);
 
                     pixel = palette.getLightedColor(pixel, luminance >> lightSpaceShift);
 

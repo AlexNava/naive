@@ -43,9 +43,15 @@ namespace functions
 {
     int8_t getPowOf2(uint64_t number);
     bool   isPowOf2(uint64_t number);
+
     inline col_t *accessArray(col_t *buf, uint16_t x, uint16_t y, uint16_t rowLength)
     {
         return buf + x + y * rowLength;
+    }
+
+    inline int32_t getDither(uint16_t x, uint16_t y)
+    {
+        return 8 * ((x ^ y) & 1);
     }
 }
 
