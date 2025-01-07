@@ -282,7 +282,7 @@ void scanlineWorker(WorkerData *pWkData)
     int32_t lStep;
     int32_t span;
     col_t pixel, bgPixel;
-    light_t luminance;
+    uint16_t luminance;
     int32_t lightSpaceShift = functions::getPowOf2(constants::LIGHT_SPACE_SIZE / constants::LIGHT_LEVELS);
     printf("worker %d created\n", pWkData->workerNumber);
 

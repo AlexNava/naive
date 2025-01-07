@@ -51,7 +51,18 @@ namespace functions
 
     inline int32_t getDither(uint16_t x, uint16_t y)
     {
-        return 8 * ((x ^ y) & 1);
+        //return 8 * ((x ^ y) & 1);
+        switch ((x & 0x1) | (y & 0x1) << 1)
+        {
+        case 0:
+            return 0;
+        case 1:
+            return 8;
+        case 2:
+            return -4;
+        case 3:
+            return 4;
+        }
     }
 }
 
