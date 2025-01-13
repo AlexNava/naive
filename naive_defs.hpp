@@ -15,7 +15,7 @@ namespace constants
 {
     const uint32_t PALETTE_ENTRIES    = 256;
     const uint32_t ALPHA_LEVELS       = 16;
-    const uint32_t LIGHT_LEVELS       = 64;
+    const uint32_t LIGHT_LEVELS       = 16;
     const uint32_t TEXTURE_SPACE_SIZE = 1024; // only powers of two, please :)
     const uint32_t LIGHT_SPACE_SIZE   = 256; // only powers of two, please :)
 }
@@ -49,20 +49,31 @@ namespace functions
         return buf + x + y * rowLength;
     }
 
-    inline int32_t getDither(uint16_t x, uint16_t y)
+    static const int d[16] =
+        { 0 - 8, 15 - 8,  3 - 8, 12 - 8,
+         11 - 8,  7 - 8,  8 - 8,  4 - 8,
+          2 - 8, 14 - 8,  1 - 8, 13 - 8,
+         10 - 8,  6 - 8,  9 - 8,  5 - 8};
+
+    inline int16_t getDither(uint16_t x, uint16_t y)
     {
-        //return 8 * ((x ^ y) & 1);
-        switch ((x & 0x1) | (y & 0x1) << 1)
-        {
-        case 0:
-            return 0;
-        case 1:
-            return 8;
-        case 2:
-            return -4;
-        case 3:
-            return 4;
-        }
+        // dither pattern:
+        //
+        //    | 00 01 10 11 x
+        //  --+--------------
+        //  00|  1 16  4 13
+        //  01| 12  8  9  5
+        //  10|  3 15  2 14
+        //  11| 11  7 10  6
+        //   y|
+
+        static const int d[16] =
+            { 0 - 8, 15 - 8,  3 - 8, 12 - 8,
+             11 - 8,  7 - 8,  8 - 8,  4 - 8,
+              2 - 8, 14 - 8,  1 - 8, 13 - 8,
+             10 - 8,  6 - 8,  9 - 8,  5 - 8};
+
+        return d[x & 0b11 | (y & 0b11) << 2];
     }
 }
 

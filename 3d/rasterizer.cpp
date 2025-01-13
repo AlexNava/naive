@@ -282,7 +282,7 @@ void scanlineWorker(WorkerData *pWkData)
     int32_t lStep;
     int32_t span;
     col_t pixel, bgPixel;
-    uint16_t luminance;
+    int16_t luminance;
     int32_t lightSpaceShift = functions::getPowOf2(constants::LIGHT_SPACE_SIZE / constants::LIGHT_LEVELS);
     printf("worker %d created\n", pWkData->workerNumber);
 
@@ -317,6 +317,10 @@ void scanlineWorker(WorkerData *pWkData)
                     pixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
                     luminance = l >> FP_SHIFT;
                     luminance += functions::getDither(x, line);
+                    if (luminance >= constants::LIGHT_SPACE_SIZE)
+                        luminance = constants::LIGHT_SPACE_SIZE - 1;
+                    if (luminance < 0)
+                        luminance = 0;
 
                     pixel = palette.getLightedColor(pixel, luminance >> lightSpaceShift);
 
