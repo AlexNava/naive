@@ -9,7 +9,7 @@ Video::Video()
     m_windowScale  = 2;
     m_fullscreen   = false;
 
-    m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
+    m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
     m_pSdlRenderer = SDL_CreateRenderer(m_pWin, -1, 0);
 
     //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
@@ -82,6 +82,7 @@ bool Video::setWindowedScale(int pixelScale)
     {
         m_windowScale = pixelScale;
         SDL_SetWindowSize(m_pWin, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale);
+        SDL_SetWindowPosition(m_pWin, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         return true;
     }
     return false;
