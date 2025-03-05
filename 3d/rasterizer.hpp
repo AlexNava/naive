@@ -17,7 +17,9 @@ struct RasterVertex
     rendDepth_t z;     // only used for perspective correction, if implemented
     uint16_t    u;
     uint16_t    v;
+    uint16_t    w;     // cube maps, maybe one day
     light_t     light; // used for gouraud shading or flat shading
+    col_t       color; // used when no texturing is specified
 };
 
 struct ScanlineEnd
@@ -25,6 +27,7 @@ struct ScanlineEnd
     int32_t x;
     int32_t textureU; // shifted
     int32_t textureV; // shifted
+    int32_t textureW; // shifted
     int32_t luminance; // shifted
     //uint8_t spare[3]; // alignment
 };
@@ -52,10 +55,16 @@ public:
 
     void setPTargetScreen(Screen *newPTargetScreen);
 
-    void renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t flatColor, matFlags_t flags);
+    void renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t solidColor, matFlags_t flags);
 
     Screen *pTargetScreen() const;
     void setPTexture(Texture *newPTexture);
+
+    matFlags_t materialFlags() const;
+
+    col_t solidColor() const;
+
+    light_t flatLight() const;
 
 private:
     Screen *m_pTargetScreen;
@@ -76,6 +85,9 @@ private:
 
     // settable render flags
     bool m_subpixelEdges; // ignored
+    matFlags_t m_materialFlags;
+    col_t m_solidColor;
+    light_t m_flatLight;
 
     std::vector<WorkerData*> m_threadPtrs;
 

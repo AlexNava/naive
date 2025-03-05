@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     videoMgr.setWindowedScale(1);
     videoMgr.setInternalResolution(scrW, scrH);
     //videoMgr.setFullscreen(true);
-    SDL_Delay(1000);
+    //SDL_Delay(1000);
     int mip = 0;
     int mipDir = 1;
 
@@ -64,6 +64,7 @@ int main(int argc, char **argv)
         c.u = 0;
         c.v = constants::TEXTURE_SPACE_SIZE * 0.867;
 
+        int idx = 1;
         for (int y = -200; y <= 200; y += 50)
         {
             for (int x = -250; x <= 250; x += 50)
@@ -75,21 +76,21 @@ int main(int argc, char **argv)
                 c.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 c.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 pTex->setMipLevel((x + y + 450) / 90);
-                pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+                pRasterizer->renderTriangle(&a, &b, &c, (col_t)idx++, materialFlags::SHADED|materialFlags::SOFT_SHADED);
             }
         }
 
         a.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000);
         a.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000);
-        a.light = 0;
+        a.light = 127 + 128 * sin((currTime) * M_PI / 2000);
         b.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
         b.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
         b.light = 127;
         c.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.light = 255;
-        pTex->setMipLevel(0);
-        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, (matFlags_t)0);
+        pTex->setMipLevel(10);
+        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, materialFlags::TEXTURED);
 
         videoMgr.present();
         mip += mipDir;
@@ -134,3 +135,4 @@ void testBlit(Video &video, Texture &texture, int mipLevel)
             //pScr->putPixel(x, y, texture.getTexel(x, y));
         }
 }
+

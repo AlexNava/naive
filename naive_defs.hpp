@@ -25,11 +25,13 @@ namespace materialFlags
     // no flags set = draw plain unlit triangle
 
     const matFlags_t TEXTURED         = 1 << 0;
-    const matFlags_t TRANSPARENT      = 1 << 1; // blend to bg
-    const matFlags_t ADD_TRANSPARENT  = 1 << 2; // blend additively
-    const matFlags_t GOURAUD          = 1 << 3;
-    const matFlags_t REFLECTION       = 1 << 4; // use additive spheremap
-    const matFlags_t METAL_REFLECTION = 1 << 4; // use multiplicative spheremap (not yet)
+    const matFlags_t CUBE_TEXTURED    = 1 << 1; // uses w tex coord
+    const matFlags_t TRANSPARENT      = 1 << 2; // blend to bg
+    const matFlags_t ADD_TRANSPARENT  = 1 << 3; // blend additively
+    const matFlags_t SHADED           = 1 << 4;
+    const matFlags_t SOFT_SHADED      = 1 << 5;
+    const matFlags_t REFLECTION       = 1 << 6; // use additive spheremap
+    const matFlags_t METAL_REFLECTION = 1 << 6; // use multiplicative spheremap (not yet)
 }
 
 namespace sortFlags

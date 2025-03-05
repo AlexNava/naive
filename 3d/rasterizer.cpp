@@ -74,31 +74,37 @@ void Rasterizer::setPTargetScreen(Screen *newPTargetScreen)
     }
 }
 
-void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t flatColor, matFlags_t flags)
+void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *c, col_t solidColor, matFlags_t flags)
 {
     if (!a || !b || !c)
         return;
 
-    bool flatShading = !(flags & materialFlags::GOURAUD)
+    m_materialFlags = flags;
+
+    bool flatShading = !(flags & materialFlags::SOFT_SHADED)
             || (a->light == b->light && b->light == c->light);
 
     bool textured = (flags & materialFlags::TEXTURED); // todo pass to scanlines calc
     if (textured && (a->u != b->u || a->v != b->v || b->u != c->u || b->v != c->v))
-    {
+    { // @todo rethink this
         textured = false;
+        m_materialFlags &= ~materialFlags::TEXTURED;
         m_pTexture->setMipLevel(0);
-        flatColor = m_pTexture->getTexel(a->u, a->v);
+        solidColor = m_pTexture->getTexel(a->u, a->v);
     }
+
+    m_solidColor = solidColor;
+    m_flatLight = a->light;
 
 //    printf("    starting calc scanlines. vertices: a %d, %d; b %d, %d; c %d, %d\n",
 //           a->x, a->y, b->x, b->y, c->x, c->y);
 
     // calculate edges
-    if (m_subpixelEdges)
-    {
-        // to be implemented later
-    }
-    else
+    //if (m_subpixelEdges)
+    //{
+    //    // to be implemented later
+    //}
+    //else
     {
         calcScanlines(a, b, !flatShading, textured);
         calcScanlines(b, c, !flatShading, textured);
@@ -183,11 +189,18 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
 
     uint32_t u = a->u << FP_SHIFT;
     uint32_t v = a->v << FP_SHIFT;
-    int32_t deltaU = ((int32_t)(b->u - a->u) << FP_SHIFT) / deltaY;
-    int32_t deltaV = ((int32_t)(b->v - a->v) << FP_SHIFT) / deltaY;
+    int32_t deltaU;
+    int32_t deltaV;
+    if (interpUv)
+    {
+        deltaU = ((int32_t)(b->u - a->u) << FP_SHIFT) / deltaY;
+        deltaV = ((int32_t)(b->v - a->v) << FP_SHIFT) / deltaY;
+    }
 
     uint32_t light = a->light << FP_SHIFT;
-    int32_t deltaL = ((int32_t)(b->light - a->light) << FP_SHIFT) / deltaY;
+    int32_t deltaL;
+    if (interpLight)
+        deltaL = ((int32_t)(b->light - a->light) << FP_SHIFT) / deltaY;
 
     if (xSlope * deltaX < 0) // sign changed by  shift
     {
@@ -202,9 +215,14 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
     if (a->y < 0)
     {
         x     += xSlope * (- a->y);
-        u     += deltaU * (- a->y);
-        v     += deltaV * (- a->y);
-        light += deltaL * (- a->y);
+        if (interpUv)
+        {
+            u     += deltaU * (- a->y);
+            v     += deltaV * (- a->y);
+        }
+        if (interpLight)
+            light += deltaL * (- a->y);
+
         startLine = 0;
     }
 
@@ -220,15 +238,35 @@ void Rasterizer::calcEdge(RasterVertex *a, RasterVertex *b, bool interpLight, bo
         x += xSlope;
 
         // interp uv
-        edge[i].textureU = u;
-        edge[i].textureV = v;
-        u += deltaU;
-        v += deltaV;
-
+        if (interpUv)
+        {
+            edge[i].textureU = u;
+            edge[i].textureV = v;
+            u += deltaU;
+            v += deltaV;
+        }
         // interp light
-        edge[i].luminance = light;
-        light += deltaL;
+        if (interpLight)
+        {
+            edge[i].luminance = light;
+            light += deltaL;
+        }
     }
+}
+
+light_t Rasterizer::flatLight() const
+{
+    return m_flatLight;
+}
+
+col_t Rasterizer::solidColor() const
+{
+    return m_solidColor;
+}
+
+matFlags_t Rasterizer::materialFlags() const
+{
+    return m_materialFlags;
 }
 
 Screen *Rasterizer::pTargetScreen() const
@@ -274,6 +312,7 @@ void Rasterizer::stopAllWorkers()
 void scanlineWorker(WorkerData *pWkData)
 {
     Rasterizer *pRasterizer = pWkData->pRasterizer;
+    Screen *pTargetScreen;
     Palette &palette = Palette::getInstance();
     uint16_t line = 0;
     int32_t u, v;
@@ -281,9 +320,15 @@ void scanlineWorker(WorkerData *pWkData)
     int32_t l;
     int32_t lStep;
     int32_t span;
-    col_t pixel, bgPixel;
+    col_t fgPixel, bgPixel;
     int16_t luminance;
-    int32_t lightSpaceShift = functions::getPowOf2(constants::LIGHT_SPACE_SIZE / constants::LIGHT_LEVELS);
+    int16_t lightSpaceShift = functions::getPowOf2(constants::LIGHT_SPACE_SIZE / constants::LIGHT_LEVELS);
+    matFlags_t matFlags;
+    bool isTextured;
+    col_t solidColor;
+    bool isLighted;
+    bool isLightFlat;
+    light_t flatLight;
     printf("worker %d created\n", pWkData->workerNumber);
 
     while (true)
@@ -296,7 +341,20 @@ void scanlineWorker(WorkerData *pWkData)
         if (pWkData->stopRequested)
             break;
 
-        if (pRasterizer->pTargetScreen() && pWkData->pLeftEdge && pWkData->pRightEdge)
+        pTargetScreen = pRasterizer->pTargetScreen();
+        matFlags = pRasterizer->materialFlags();
+
+        isTextured = matFlags & materialFlags::TEXTURED;
+        if (!isTextured)
+            solidColor = pRasterizer->solidColor();
+
+        isLighted = (matFlags & (materialFlags::SHADED | materialFlags::SOFT_SHADED));
+
+        isLightFlat = !(matFlags & materialFlags::SOFT_SHADED);
+        if (isLightFlat)
+            flatLight = pRasterizer->flatLight();
+
+        if (pTargetScreen && pWkData->pLeftEdge && pWkData->pRightEdge)
             for (line = pWkData->firstLine; line <= pWkData->lastLine; ++line)
             {
                 // draw scanlines
@@ -313,22 +371,45 @@ void scanlineWorker(WorkerData *pWkData)
 
                 for (int x = pWkData->pLeftEdge[line].x; x < pWkData->pRightEdge[line].x; ++x)
                 {
+                    // sample background pixel
+                    if (matFlags & (materialFlags::ADD_TRANSPARENT | materialFlags::TRANSPARENT))
+                        bgPixel = pTargetScreen->getPixel(x, line);
+
                     // sample u v >> FP_SHIFT
-                    pixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
-                    luminance = l >> FP_SHIFT;
-                    luminance += functions::getDither(x, line);
-                    if (luminance >= constants::LIGHT_SPACE_SIZE)
-                        luminance = constants::LIGHT_SPACE_SIZE - 1;
-                    if (luminance < 0)
-                        luminance = 0;
+                    if (isTextured)
+                    {
+                        fgPixel = pWkData->pTexture->getTexel(u >> FP_SHIFT, v >> FP_SHIFT);
+                        u += uStep;
+                        v += vStep;
+                    }
+                    else
+                    {
+                        fgPixel = solidColor;
+                    }
 
-                    pixel = palette.getLightedColor(pixel, luminance >> lightSpaceShift);
+                    if (isLighted)
+                    {
+                        if (isLightFlat)
+                        {
+                            luminance = flatLight; // necessary to reassign for dithering
+                        }
+                        else
+                        {
+                            luminance = l >> FP_SHIFT;
+                            l += lStep;
+                        }
 
-                    u += uStep;
-                    v += vStep;
-                    l += lStep;
+                        luminance += functions::getDither(x, line);
+                        if (luminance >= constants::LIGHT_SPACE_SIZE)
+                            luminance = constants::LIGHT_SPACE_SIZE - 1;
+                        if (luminance < 0)
+                            luminance = 0;
 
-                    pRasterizer->pTargetScreen()->putPixel(x, line, pixel);
+
+                        fgPixel = palette.getLightedColor(fgPixel, luminance >> lightSpaceShift);
+                    }
+
+                    pTargetScreen->putPixel(x, line, fgPixel);
                 }
             }
 

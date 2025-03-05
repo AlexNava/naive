@@ -116,10 +116,14 @@ col_t Palette::getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha)
 
 double Palette::computeDistance(SDL_Color color1, SDL_Color color2) const
 {
+    double lum1 = std::sqrt(std::pow((double)color1.r, 2.0) + std::pow((double)color1.g, 2.0) + std::pow((double)color1.b, 2.0));
+    double lum2 = std::sqrt(std::pow((double)color2.r, 2.0) + std::pow((double)color2.g, 2.0) + std::pow((double)color2.b, 2.0));
+
     return std::sqrt(
         std::pow(((double)color1.r - (double)color2.r), 2.0) * 3
         + std::pow(((double)color1.g - (double)color2.g), 2.0) * 4
-        + std::pow(((double)color1.b - (double)color2.b), 2.0) * 2);
+        + std::pow(((double)color1.b - (double)color2.b), 2.0) * 2
+        + std::pow((lum1 - lum2), 2.0) * 2);
 }
 
 col_t Palette::computeNearestColor(SDL_Color target)
