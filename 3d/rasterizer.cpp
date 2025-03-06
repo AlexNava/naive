@@ -85,7 +85,7 @@ void Rasterizer::renderTriangle(RasterVertex *a, RasterVertex *b, RasterVertex *
             || (a->light == b->light && b->light == c->light);
 
     bool textured = (flags & materialFlags::TEXTURED); // todo pass to scanlines calc
-    if (textured && (a->u != b->u || a->v != b->v || b->u != c->u || b->v != c->v))
+    if (textured && a->u == b->u && a->v == b->v && b->u == c->u && b->v == c->v)
     { // @todo rethink this
         textured = false;
         m_materialFlags &= ~materialFlags::TEXTURED;
@@ -333,7 +333,6 @@ void scanlineWorker(WorkerData *pWkData)
 
     while (true)
     {
-
         pWkData->pStartMutex->lock();
 
 //        printf("worker %d start obtained. lines %d to %d\n", pWkData->workerNumber, pWkData->firstLine, pWkData->lastLine);
@@ -361,13 +360,19 @@ void scanlineWorker(WorkerData *pWkData)
                 span = pWkData->pRightEdge[line].x - pWkData->pLeftEdge[line].x;
                 span += !span;
 
-                u = pWkData->pLeftEdge[line].textureU;
-                uStep = (pWkData->pRightEdge[line].textureU - u) / span;
-                v = pWkData->pLeftEdge[line].textureV;
-                vStep = (pWkData->pRightEdge[line].textureV - v) / span;
+                if (isTextured)
+                {
+                    u = pWkData->pLeftEdge[line].textureU;
+                    uStep = (pWkData->pRightEdge[line].textureU - u) / span;
+                    v = pWkData->pLeftEdge[line].textureV;
+                    vStep = (pWkData->pRightEdge[line].textureV - v) / span;
+                }
 
-                l = pWkData->pLeftEdge[line].luminance;
-                lStep = (pWkData->pRightEdge[line].luminance - l) / span;
+                if (isLighted)
+                {
+                    l = pWkData->pLeftEdge[line].luminance;
+                    lStep = (pWkData->pRightEdge[line].luminance - l) / span;
+                }
 
                 for (int x = pWkData->pLeftEdge[line].x; x < pWkData->pRightEdge[line].x; ++x)
                 {
@@ -408,6 +413,11 @@ void scanlineWorker(WorkerData *pWkData)
 
                         fgPixel = palette.getLightedColor(fgPixel, luminance >> lightSpaceShift);
                     }
+
+                    if (matFlags & materialFlags::TRANSPARENT)
+                        fgPixel = palette.getBlendedColor(fgPixel, bgPixel, 7);
+                    else if (matFlags & materialFlags::ADD_TRANSPARENT)
+                        fgPixel = palette.getAddedColor(fgPixel, bgPixel);
 
                     pTargetScreen->putPixel(x, line, fgPixel);
                 }

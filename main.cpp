@@ -76,7 +76,7 @@ int main(int argc, char **argv)
                 c.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 c.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 pTex->setMipLevel((x + y + 450) / 90);
-                pRasterizer->renderTriangle(&a, &b, &c, (col_t)idx++, materialFlags::SHADED|materialFlags::SOFT_SHADED);
+                pRasterizer->renderTriangle(&a, &b, &c, (col_t)idx++, materialFlags::TEXTURED);
             }
         }
 
@@ -89,8 +89,8 @@ int main(int argc, char **argv)
         c.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.light = 255;
-        pTex->setMipLevel(10);
-        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, materialFlags::TEXTURED);
+        pTex->setMipLevel(0);
+        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, materialFlags::TEXTURED | materialFlags::ADD_TRANSPARENT | materialFlags::SOFT_SHADED);
 
         videoMgr.present();
         mip += mipDir;

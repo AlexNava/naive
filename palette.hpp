@@ -13,9 +13,26 @@ public:
 
     void computeLookupTables();
 
-    col_t getLightedColor(col_t color, col_t light);
-    col_t getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha);
-    col_t getAddedColor(col_t color, light_t light);
+    inline col_t getLightedColor(col_t color, col_t light) const
+    {
+        if (light <= constants::LIGHT_LEVELS)
+            return m_lightTable[color][light];
+        else
+            return m_lightTable[color][constants::LIGHT_LEVELS - 1];
+    }
+
+    inline col_t getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha) const
+    {
+        if (alpha < constants::ALPHA_LEVELS)
+            return m_blendTable[fgColor][bgColor][alpha];
+        else
+            return m_blendTable[fgColor][bgColor][constants::ALPHA_LEVELS - 1];
+    }
+
+    inline col_t getAddedColor(col_t fgColor, col_t bgColor) const
+    {
+        return m_addBlendTable[fgColor][bgColor];
+    }
 
     void setSystemPalette(SDL_Palette *newSystemPalette);
 

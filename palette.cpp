@@ -98,32 +98,16 @@ void Palette::computeLookupTables()
 
 }
 
-col_t Palette::getLightedColor(col_t color, col_t light)
-{
-    if (light <= constants::LIGHT_LEVELS)
-        return m_lightTable[color][light];
-    else
-        return m_lightTable[color][constants::LIGHT_LEVELS - 1];
-}
-
-col_t Palette::getBlendedColor(col_t fgColor, col_t bgColor, alpha_t alpha)
-{
-    if (alpha < constants::ALPHA_LEVELS)
-        return m_blendTable[fgColor][bgColor][alpha];
-    else
-        return m_blendTable[fgColor][bgColor][constants::ALPHA_LEVELS - 1];
-}
-
 double Palette::computeDistance(SDL_Color color1, SDL_Color color2) const
 {
-    double lum1 = std::sqrt(std::pow((double)color1.r, 2.0) + std::pow((double)color1.g, 2.0) + std::pow((double)color1.b, 2.0));
-    double lum2 = std::sqrt(std::pow((double)color2.r, 2.0) + std::pow((double)color2.g, 2.0) + std::pow((double)color2.b, 2.0));
+    //double lum1 = std::sqrt(std::pow((double)color1.r, 2.0) + std::pow((double)color1.g, 2.0) + std::pow((double)color1.b, 2.0));
+    //double lum2 = std::sqrt(std::pow((double)color2.r, 2.0) + std::pow((double)color2.g, 2.0) + std::pow((double)color2.b, 2.0));
 
-    return std::sqrt(
+    return //std::sqrt(
         std::pow(((double)color1.r - (double)color2.r), 2.0) * 3
         + std::pow(((double)color1.g - (double)color2.g), 2.0) * 4
-        + std::pow(((double)color1.b - (double)color2.b), 2.0) * 2
-        + std::pow((lum1 - lum2), 2.0) * 2);
+        + std::pow(((double)color1.b - (double)color2.b), 2.0) * 2;
+        /*std::pow((lum1 - lum2), 2.0) * 2*///);
 }
 
 col_t Palette::computeNearestColor(SDL_Color target)
