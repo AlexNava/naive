@@ -1,5 +1,6 @@
 #include "video.hpp"
 #include "palette.hpp"
+#include "screen.hpp"
 
 Video::Video()
 {
@@ -8,7 +9,7 @@ Video::Video()
     m_windowScale  = 2;
     m_fullscreen   = false;
 
-    m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
+    m_pWin = SDL_CreateWindow("naive", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale, 0);
     m_pSdlRenderer = SDL_CreateRenderer(m_pWin, -1, 0);
 
     //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
@@ -20,8 +21,9 @@ Video::Video()
         SDL_TEXTUREACCESS_STREAMING,
         m_screenWidth, m_screenHeight);
     m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-    m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
-    vgaScreen = (col_t*)m_pVgaSurface->pixels;
+    m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8 * sizeof(col_t), 0, 0, 0, 0);
+    m_pVgaBuffer = (col_t*)m_pVgaSurface->pixels;
+    m_pVgaScreen = new Screen(m_screenWidth, m_screenHeight, m_pVgaBuffer);
 
     Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 }
@@ -49,8 +51,12 @@ bool Video::setInternalResolution(int width, int height)
             SDL_TEXTUREACCESS_STREAMING,
             m_screenWidth, m_screenHeight);
         m_pRgbSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 32, 0, 0, 0, 0);
-        m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8, 0, 0, 0, 0);
-        vgaScreen = (col_t*)m_pVgaSurface->pixels;
+        m_pVgaSurface = SDL_CreateRGBSurface(0, m_screenWidth, m_screenHeight, 8 * sizeof(col_t), 0, 0, 0, 0);
+        m_pVgaBuffer = (col_t*)m_pVgaSurface->pixels;
+
+        if (m_pVgaScreen)
+            delete m_pVgaScreen;
+        m_pVgaScreen = new Screen(m_screenWidth, m_screenHeight, m_pVgaBuffer);
 
         Palette::getInstance().setSystemPalette(m_pVgaSurface->format->palette);
 
@@ -76,14 +82,10 @@ bool Video::setWindowedScale(int pixelScale)
     {
         m_windowScale = pixelScale;
         SDL_SetWindowSize(m_pWin, m_screenWidth * m_windowScale, m_screenHeight * m_windowScale);
+        SDL_SetWindowPosition(m_pWin, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         return true;
     }
     return false;
-}
-
-col_t *Video::getVgaScreen() const
-{
-    return vgaScreen;
 }
 
 void Video::present()
@@ -94,20 +96,7 @@ void Video::present()
     if (!m_pVgaSurface)
         return;
 
-
-    SDL_Event evt;
-    while (SDL_PollEvent(&evt))
-    {
-        if (evt.type == SDL_QUIT)
-        {
-            exit(0);
-        }
-    }
-
-    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
-
-
-    SDL_ClearError();
+    //SDL_ClearError();
     SDL_BlitSurface(m_pVgaSurface, NULL, m_pRgbSurface, NULL); // with format conversion
 
     SDL_LockTexture(m_pSdlTexture, NULL, &texturePixels, &texturePitch);
@@ -121,6 +110,11 @@ void Video::present()
     SDL_RenderClear(m_pSdlRenderer);
     SDL_RenderCopy(m_pSdlRenderer, m_pSdlTexture, NULL, NULL);
     SDL_RenderPresent(m_pSdlRenderer);
+}
+
+Screen *Video::pVgaScreen() const
+{
+    return m_pVgaScreen;
 }
 /*
 int Video::screenHeight() const

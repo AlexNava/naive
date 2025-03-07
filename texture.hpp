@@ -25,7 +25,9 @@ public:
 
     inline col_t getTexel(uint16_t u, uint16_t v) const
     {
+        u &= m_uvMask;
         u >>= m_effUShift;
+        v &= m_uvMask;
         v >>= m_effVShift;
 
         return *(functions::accessArray(m_colorTexels[m_mipLevel], u, v, m_effWidth));
@@ -41,6 +43,7 @@ public:
 
 private:
     bool m_isValid;
+    bool m_isDynamic; // later
     uint16_t m_width;
     uint16_t m_height;
     std::vector<col_t*> m_colorTexels;
@@ -53,7 +56,7 @@ private:
 
     uint8_t uShift;
     uint8_t vShift;
-
+    uint16_t m_uvMask;
     uint8_t  m_effUShift;
     uint8_t  m_effVShift;
     uint16_t m_effWidth;
