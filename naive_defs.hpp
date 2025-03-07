@@ -13,11 +13,11 @@ typedef float rendDepth_t;
 
 namespace constants
 {
-    const uint32_t PALETTE_ENTRIES    = 256;
-    const uint32_t ALPHA_LEVELS       = 16;
-    const uint32_t LIGHT_LEVELS       = 16;
-    const uint32_t TEXTURE_SPACE_SIZE = 1024; // only powers of two, please :)
-    const uint32_t LIGHT_SPACE_SIZE   = 256; // only powers of two, please :)
+    const int16_t PALETTE_ENTRIES    = 256;
+    const int16_t ALPHA_LEVELS       = 16;
+    const int16_t LIGHT_LEVELS       = 16;
+    const int16_t TEXTURE_SPACE_SIZE = 1024; // only powers of two, please :)
+    const int16_t LIGHT_SPACE_SIZE   = 256; // only powers of two, please :)
 }
 
 namespace materialFlags

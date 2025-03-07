@@ -45,6 +45,7 @@ int main(int argc, char **argv)
     pRasterizer->setPTexture(pTex);
 
     RasterVertex a, b, c;
+    matFlags_t flags;
 
     int cnt = 0;
     time = SDL_GetTicks();
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
 
         //testBlit(videoMgr, *pTex, mip);
         //testBlit(videoMgr, *pTex, 0);
-        screenOps::clearScreen(videoMgr.pVgaScreen(), 6);
+        screenOps::clearScreen(videoMgr.pVgaScreen(), 44);
 
         a.u = constants::TEXTURE_SPACE_SIZE * 0.5;
         a.v = 0;
@@ -76,21 +77,42 @@ int main(int argc, char **argv)
                 c.x = x + scrW / 2 + 50 * cos((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 c.y = y + scrH / 2 + 50 * sin((currTime + x) * M_PI / 2000 + M_PI * 4.0 / 3.0);
                 pTex->setMipLevel((x + y + 450) / 90);
-                pRasterizer->renderTriangle(&a, &b, &c, (col_t)idx++, materialFlags::TEXTURED);
+
+                flags = 0;
+                if (x >= -200 && x < -150)
+                    flags = materialFlags::SHADED;
+                else if (x >= -150 && x < -100)
+                    flags = materialFlags::SOFT_SHADED;
+                else if (x >= -100 && x < -50)
+                    flags = materialFlags::TEXTURED;
+                else if (x >= -50 && x < 0)
+                    flags = materialFlags::TEXTURED | materialFlags::SHADED;
+                else if (x >= 0 && x < 50)
+                    flags = materialFlags::TEXTURED | materialFlags::SOFT_SHADED;
+                else if (x >= 50 && x < 500)
+                    flags = materialFlags::TEXTURED | materialFlags::SOFT_SHADED;
+
+                if (y >= -100 && y < 0)
+                    flags |= materialFlags::TRANSPARENT;
+
+                if (y >= 100 && y < 200)
+                    flags |= materialFlags::ADD_TRANSPARENT;
+
+                pRasterizer->renderTriangle(&a, &b, &c, (col_t)idx++, flags);
             }
         }
 
         a.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000);
         a.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000);
-        a.light = 127 + 128 * sin((currTime) * M_PI / 2000);
+        a.light = (light_t)(0);//(127 + 127 * sin((currTime) * M_PI / 2000));
         b.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
         b.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 2.0 / 3.0);
-        b.light = 127;
+        b.light = 0;
         c.x = scrW / 2 + 280 * cos((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.y = scrH / 2 + 280 * sin((currTime) * M_PI / 2000 + M_PI * 4.0 / 3.0);
         c.light = 255;
         pTex->setMipLevel(0);
-        pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, materialFlags::TEXTURED | materialFlags::ADD_TRANSPARENT | materialFlags::SOFT_SHADED);
+        //pRasterizer->renderTriangle(&a, &b, &c, (col_t)128, materialFlags::TEXTURED | materialFlags::TRANSPARENT | materialFlags::SOFT_SHADED);
 
         videoMgr.present();
         mip += mipDir;
