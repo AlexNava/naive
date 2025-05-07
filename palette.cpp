@@ -1,5 +1,12 @@
 #include <cmath>
+#include <string>
+#include <format>
+#include <ios>
+#include <iostream>
+#include <fstream>
+
 #include "palette.hpp"
+#include "utils/hash.hpp"
 
 Palette &Palette::getInstance()
 {
@@ -37,6 +44,10 @@ SDL_Color Palette::getColor(col_t index)
 
 void Palette::computeLookupTables()
 {
+    std::string paletteHash = hashPaletteName();
+
+    // if a saved palette lookup table exists load it, otherwise calculate it and save it later
+
     for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
         for (uint16_t light = 0; light < constants::LIGHT_LEVELS; ++light)
         {
@@ -125,4 +136,56 @@ col_t Palette::computeNearestColor(SDL_Color target)
     }
 
     return minIndex;
+}
+
+std::string Palette::hashPaletteName()
+{
+    NaiveHash hash;
+
+    hash.accumulate(constants::PALETTE_ENTRIES);
+    hash.accumulate(constants::ALPHA_LEVELS);
+    hash.accumulate(constants::LIGHT_LEVELS);
+
+    for (int i = 0; i < constants::PALETTE_ENTRIES; ++i)
+    {
+        hash.accumulate(m_palette[i].r << 32 | m_palette[i].g << 16 | m_palette[i].b);
+    }
+
+    return std::format("{:x}", hash.get());
+}
+
+void Palette::saveLookupTables(std::string filename)
+{
+
+    std::ofstream file(filename, std::ios::binary);
+
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t light = 0; light < constants::LIGHT_LEVELS; ++light)
+        {
+            m_lightTable[fgCol][light];
+        }
+
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t bgCol = 0; bgCol < constants::PALETTE_ENTRIES; ++bgCol)
+            for (uint16_t alpha = 0; alpha < constants::ALPHA_LEVELS; ++alpha)
+            {
+                m_blendTable[fgCol][bgCol][alpha];
+            }
+
+    for (uint16_t fgCol = 0; fgCol < constants::PALETTE_ENTRIES; ++fgCol)
+        for (uint16_t bgCol = 0; bgCol < constants::PALETTE_ENTRIES; ++bgCol)
+        {
+            m_addBlendTable[fgCol][bgCol];
+        }
+
+}
+
+bool Palette::loadLookupTables(std::string filename)
+{
+    std::ifstream file(filename, std::ios::binary);
+
+    if (!file.good())
+        return false;
+
+
 }
