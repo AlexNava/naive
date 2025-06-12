@@ -1,6 +1,7 @@
 #ifndef PALETTE_HPP
 #define PALETTE_HPP
 
+#include <string>
 #include "SDL2/SDL_pixels.h"
 #include "naive_defs.hpp"
 
@@ -46,6 +47,11 @@ private:
 
     double computeDistance(SDL_Color color1, SDL_Color color2) const;
     col_t computeNearestColor(SDL_Color target);
+
+    std::string hashPaletteName();
+    void saveLookupTables(std::string filename);
+    bool loadLookupTables(std::string filename);
+
 };
 
 #endif // PALETTE_HPP
