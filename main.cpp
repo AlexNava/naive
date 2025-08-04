@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     const int scrW = 640;
     const int scrH = 480;
 
-    Mesh *pA112 = ObjLoader::getInstance().loadMesh("data/a112_cleaned.obj");
+    Mesh *pA112 = ObjLoader::getInstance().loadMesh("data/cube.obj");
 
     TextureLoader::getInstance().loadPaletteFromFile("data/awesome-lion-1024.pcx");
 
